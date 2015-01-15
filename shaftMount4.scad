@@ -17,104 +17,110 @@ bearingDiam = 10+0.5;       //add a bit (10mm actual)
 bearingThick = 4;
 bearingPad = 2;                 //padding around the outside of the bearing outer
 bearingMarg = 0.4;              //thickness under the ends of the bearing & for clearances
-bearingInterfaceDiam = 7;       //the nub that sticks up from the non-bearing side
+bearingInterfaceDiam = 7;       //the nub that sticks up from the non-bearing side
 shaftZ = (bearingThick + bearingMarg + bearingMarg/2); //was shaftPad+shaftDiam/2
 
 tiny=0.001;
-
-elbowBearing2();
-//translate([0,0,bearingThick*2+bearingMarg*3])rotate([180,0,320])elbow2();
-translate([0,20,0])elbow2();
 
-module elbowBearing2() {
-    difference() {
-        union() {
-            cylinder(h=bearingThick+bearingMarg,d=bearingDiam+2*bearingPad,$fn=detail);
-            translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
-            rotate([0,0,90])translate([-bearingDiam,-(shaftDiam+shaftPad*2)/2,0])cube([bearingDiam,shaftDiam+shaftPad*2,bearingThick+bearingMarg]);
-        }
-        //remove bearing
-        translate([0,0,bearingMarg])cylinder(h=m3bolt+shaftDiam+shaftPad*4,d=bearingDiam,$fn=detail);
-        //bolt hole
-        cylinder(h=bearingThick,d=bearingInterfaceDiam,$fn=detail);
-        //shaft
-        translate([bearingDiam,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
-        
-        //remove extra bits for pivot angle
-        rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad]);
-        mirror([0,1,0])rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
-        
-        //keyway for clamping (shaft)
-        translate([bearingDiam,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
-        rotate([0,0,90]) {
-            //keyway for bearing clamp
-            #translate([-bearingDiam-tiny,-shaftDiam/8,0])cube([bearingDiam,shaftDiam/4,bearingThick+bearingMarg]);
-            //clamp bolt
-            translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
-            translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
-        }
-        
-        //clamp bolt (shaft)
-        translate([shaftClampedLength,bearingDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=bearingDiam,d=m3bolt,$fn=detail);
-        translate([-bearingDiam*1.5,-bearingDiam,bearingThick+bearingMarg])cube([bearingDiam*2,bearingDiam*2,bearingDiam*2]);
-    }
+translate([-15,-30,0]) {
+    translate([0,0,0])elbowBearing2();
+    translate([0,20,0])elbowBearing2();
+    translate([0,40,0])elbowBearing2();
+    translate([0,60,0])elbowBearing2();
 }
-module elbowBearing() {
-    //needs clamping for bearing...
-    difference() {
-        //main body (bearing housing + shaft clamp)
-        union() {
-            cylinder(h=bearingThick+bearingMarg,d=bearingDiam+2*bearingPad,$fn=detail);
-            translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
-            translate([-bearingDiam,-(shaftDiam+shaftPad*2)/2,0])cube([bearingDiam,shaftDiam+shaftPad*2,bearingThick+bearingMarg]);
-        }
-        //remove bearing
-        translate([0,0,bearingMarg])cylinder(h=m3bolt+shaftDiam+shaftPad*4,d=bearingDiam+bearingPad,$fn=detail);
-        //bolt hole
-        cylinder(h=bearingThick,d=bearingInterfaceDiam,$fn=detail);
-        //shaft
-        translate([bearingPad+bearingDiam/2,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
-        //keyway for clamping
-        translate([bearingPad+bearingDiam/2,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
-        //clamp bolt
-        translate([shaftClampedLength+bearingDiam/2-bearingPad,tiny/2+shaftPad+shaftDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=tiny+shaftDiam+2*shaftPad,d=m3bolt,$fn=detail);
-        //remove extra bits for pivot angle
-        translate([0,0,bearingMarg+bearingThick])rotate([0,0,25])cube([bearingDiam,2*bearingPad,bearingDiam]);
-        mirror([0,1,0])translate([0,0,bearingMarg+bearingThick])rotate([0,0,25])cube([bearingDiam,2*bearingPad,bearingDiam]);
-        
-        //keyway for bearing clamp
-        translate([-bearingDiam,-shaftDiam/8,0])cube([bearingDiam,shaftDiam/4,bearingThick+bearingMarg]);
-        //clamp bolt
-        translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
-        translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
-    }
-}
-module elbow2() {
-    difference() {
-        union() {
-            translate([0,0,bearingThick+bearingMarg])cylinder(h=bearingMarg,d=bearingInterfaceDiam,$fn=detail);
-            difference() {
-                union() {
-                    cylinder(h=bearingThick+bearingMarg,d=bearingInterfaceDiam*1.5,$fn=detail);
-                    translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
-                }
-                //remove bearing
-                translate([0,0,bearingMarg+bearingThick])cylinder(h=m3bolt+shaftDiam+shaftPad*2,d=bearingDiam+bearingPad*3,$fn=detail);
-                //shaft
-                translate([bearingDiam,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
-                //keyway for clamping
-                translate([bearingDiam,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
-                //clamp bolt
-                translate([shaftClampedLength,tiny/2+shaftPad+shaftDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=tiny+shaftDiam+2*shaftPad,d=m3bolt,$fn=detail);
-                //remove extra bits for pivot angle
-        rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad]);
-        mirror([0,1,0])rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
-            }
-        }
-        //bolt hole
-        cylinder(h=bearingThick+bearingMarg+bearingMarg,d=m5bolt,$fn=detail);
-    }
-    
+
+//build surface for check
+//translate([0,0,-1])cylinder(h=1,d=175);
+
+module elbowBearing2() {
+    difference() {
+        union() {
+            cylinder(h=bearingThick+bearingMarg,d=bearingDiam+2*bearingPad,$fn=detail);
+            translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
+            rotate([0,0,90])translate([-bearingDiam,-(shaftDiam+shaftPad*2)/2,0])cube([bearingDiam,shaftDiam+shaftPad*2,bearingThick+bearingMarg]);
+        }
+        //remove bearing
+        translate([0,0,bearingMarg])cylinder(h=m3bolt+shaftDiam+shaftPad*4,d=bearingDiam,$fn=detail);
+        //bolt hole
+        cylinder(h=bearingThick,d=bearingInterfaceDiam,$fn=detail);
+        //shaft
+        translate([bearingDiam,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
+        
+        //remove extra bits for pivot angle
+        rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad]);
+        mirror([0,1,0])rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
+        
+        //keyway for clamping (shaft)
+        translate([bearingDiam,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
+        rotate([0,0,90]) {
+            //keyway for bearing clamp
+            translate([-bearingDiam-tiny,-shaftDiam/8,0])cube([bearingDiam,shaftDiam/4,bearingThick+bearingMarg]);
+            //clamp bolt
+            translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
+            translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
+        }
+        
+        //clamp bolt (shaft)
+        translate([shaftClampedLength,bearingDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=bearingDiam,d=m3bolt,$fn=detail);
+        translate([-bearingDiam*1.5,-bearingDiam,bearingThick+bearingMarg])cube([bearingDiam*2,bearingDiam*2,bearingDiam*2]);
+    }
+}
+module elbowBearing() {
+    //needs clamping for bearing...
+    difference() {
+        //main body (bearing housing + shaft clamp)
+        union() {
+            cylinder(h=bearingThick+bearingMarg,d=bearingDiam+2*bearingPad,$fn=detail);
+            translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
+            translate([-bearingDiam,-(shaftDiam+shaftPad*2)/2,0])cube([bearingDiam,shaftDiam+shaftPad*2,bearingThick+bearingMarg]);
+        }
+        //remove bearing
+        translate([0,0,bearingMarg])cylinder(h=m3bolt+shaftDiam+shaftPad*4,d=bearingDiam+bearingPad,$fn=detail);
+        //bolt hole
+        cylinder(h=bearingThick,d=bearingInterfaceDiam,$fn=detail);
+        //shaft
+        translate([bearingPad+bearingDiam/2,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
+        //keyway for clamping
+        translate([bearingPad+bearingDiam/2,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
+        //clamp bolt
+        translate([shaftClampedLength+bearingDiam/2-bearingPad,tiny/2+shaftPad+shaftDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=tiny+shaftDiam+2*shaftPad,d=m3bolt,$fn=detail);
+        //remove extra bits for pivot angle
+        translate([0,0,bearingMarg+bearingThick])rotate([0,0,25])cube([bearingDiam,2*bearingPad,bearingDiam]);
+        mirror([0,1,0])translate([0,0,bearingMarg+bearingThick])rotate([0,0,25])cube([bearingDiam,2*bearingPad,bearingDiam]);
+        
+        //keyway for bearing clamp
+        translate([-bearingDiam,-shaftDiam/8,0])cube([bearingDiam,shaftDiam/4,bearingThick+bearingMarg]);
+        //clamp bolt
+        translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
+        translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
+    }
+}
+module elbow2() {
+    difference() {
+        union() {
+            translate([0,0,bearingThick+bearingMarg])cylinder(h=bearingMarg,d=bearingInterfaceDiam,$fn=detail);
+            difference() {
+                union() {
+                    cylinder(h=bearingThick+bearingMarg,d=bearingInterfaceDiam*1.5,$fn=detail);
+                    translate([0,-(shaftDiam+shaftPad*2)/2,0])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
+                }
+                //remove bearing
+                translate([0,0,bearingMarg+bearingThick])cylinder(h=m3bolt+shaftDiam+shaftPad*2,d=bearingDiam+bearingPad*3,$fn=detail);
+                //shaft
+                translate([bearingDiam,0,shaftZ])rotate([0,90,0])cylinder(h=shaftClampedLength,d=shaftDiam,$fn=detail);
+                //keyway for clamping
+                translate([bearingDiam,-shaftDiam/8,shaftPad+shaftDiam/2])cube([bearingDiam/2+shaftClampedLength,shaftDiam/4,shaftDiam*2]);
+                //clamp bolt
+                translate([shaftClampedLength,tiny/2+shaftPad+shaftDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=tiny+shaftDiam+2*shaftPad,d=m3bolt,$fn=detail);
+                //remove extra bits for pivot angle
+        rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad]);
+        mirror([0,1,0])rotate([0,0,40])translate([0,-(shaftDiam+shaftPad*2)/2,bearingMarg+bearingThick])cube([bearingPad+shaftClampedLength+bearingDiam/2,shaftDiam+shaftPad*2,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
+            }
+        }
+        //bolt hole
+        cylinder(h=bearingThick+bearingMarg+bearingMarg,d=m5bolt,$fn=detail);
+    }
+    
 }
 module elbow() {
     difference() {
