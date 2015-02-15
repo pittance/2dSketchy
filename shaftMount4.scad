@@ -1,4 +1,4 @@
-detail = 60;	//20=low, 80=high
+detail = 20;	//20=low, 80=high
 height = 15;
 barLength = 40;
 holeDiam = 8;	//M8 bolt
@@ -8,8 +8,9 @@ shaftPos = height/3;
 shaftClampedLength = 35;        //after much fiddling this isn't the clamped length any more
 shaftPad = 1;
 penArmLength = 30;
-penClampHeight = 20;
-penClampThick = 4;
+penClampHeight = 15;
+penClampThick = 4;
+penDiam = 11;
 
 layer = 0.2;
 
@@ -37,7 +38,8 @@ wrist1();
 //translate([-30,8,11])rotate([90,180,0])9g_servo();
 
 //checking assembly of wrist
-//translate([0,0,10])rotate([0,180,225])elbowBearing2();
+translate([0,0,9.5])rotate([0,180,222])elbowBearing2();
+translate([0,0,9.5])rotate([0,180,318])elbowBearing2();
 
 //print 2 copies of the shoulder shaft mounts
 //translate([-15,-15,0])shaftMount();
@@ -60,6 +62,8 @@ module wrist1() {
             translate([0,(shaftDiam+shaftPad*2)/2,0])rotate([0,0,180])cube([penArmLength,shaftDiam+shaftPad*2,bearingThick+bearingMarg]);
             //pen clamp
             translate([-penArmLength,-(shaftDiam+shaftPad*2)/2,0])cube([penClampThick,shaftDiam+shaftPad*2,penClampHeight]);
+            //pen clamp fixing
+            translate([-(0.65*penArmLength),0,0])cylinder(h=penClampHeight,d1=5,d2=6,$fn=detail);
         }
         //remove bearing
         translate([0,0,bearingMarg])cylinder(h=m3bolt+shaftDiam+shaftPad*4,d=bearingDiam,$fn=detail);
@@ -87,6 +91,8 @@ module wrist1() {
         //clamp bolt (shaft)
         translate([shaftClampedLength,bearingDiam/2,shaftPad*2+shaftDiam+m3bolt/2])rotate([90,0,0])cylinder(h=bearingDiam,d=m3bolt,$fn=detail);
         translate([-bearingDiam*1.5,-bearingDiam,bearingThick+bearingMarg])cube([bearingDiam*2,bearingDiam*2,bearingDiam*2]);
+        //pen clamp surface
+        translate([-penArmLength-penDiam/2+2,0,0])rotate([])cylinder(h=penClampHeight,d=penDiam,$fn=detail);
     }
     
     
