@@ -22,7 +22,9 @@ bearingThick = 4;
 bearingPad = 2;                 //padding around the outside of the bearing outer
 bearingMarg = 0.4;              //thickness under the ends of the bearing & for clearances
 bearingInterfaceDiam = 7;       //the nub that sticks up from the non-bearing side
-shaftZ = (bearingThick + bearingMarg + bearingMarg/2); //was shaftPad+shaftDiam/2
+shaftZ = (bearingThick + bearingMarg + bearingMarg/2); //was shaftPad+shaftDiam/2
+
+boltMaxLen20 = 17.82; //max length for bolting on 20mm bolt
 
 tiny=0.001;
 
@@ -110,9 +112,9 @@ module elbowBearing3() {
             //clamp for shaft
             rotate([0,0,0])translate([-holeDiam*1.5,-holeDiam/2,0])cube([holeDiam,shaftDiam+shaftPad*2,height]);
         }
-        #cylinder(h=height,d=bearingDiam-2,$fn=detail);
+        cylinder(h=height,d=bearingDiam-2,$fn=detail);
         #translate([0,0,0])cylinder(h=bearingThick,d=bearingDiam,$fn=detail);
-        #translate([0,0,height-bearingThick])cylinder(h=bearingThick,d=bearingDiam,$fn=detail);
+        #translate([0,0,boltMaxLen20-bearingThick*2])cylinder(h=bearingThick*2,d=bearingDiam,$fn=detail);
         translate([holeDiam,0,shaftPos])rotate([0,90,0]) {
                 cylinder(h=barLength,d=shaftDiam,$fn=detail);
                 translate([-height,-shaftDiam/4,0])cube([height,shaftDiam/2,barLength]);
