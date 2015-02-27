@@ -26,16 +26,17 @@ shaftZ = (bearingThick + bearingMarg + bearingMarg/2); //was shaftPad+shaftDiam/
 
 tiny=0.001;
 
-//print 5 copies of the elbow joints (4x elbows + one wrist)
+//print 5 copies of the elbow joints (4x elbows + one wrist)
 //print 1 of the wrist joints (one elbow is used as a wrist)
-translate([0,10,0]) {
-translate([-15,-60,0])elbowBearing2();
-translate([-15,-40,0])elbowBearing2();
-translate([-15,-20,0])elbowBearing2();
-wrist1();
-translate([-15,20,0])elbowBearing2();
-translate([-15,40,0])elbowBearing2();
-}
+
+//translate([0,10,0]) {
+//translate([-15,-60,0])elbowBearing2();
+//translate([-15,-40,0])elbowBearing2();
+//translate([-15,-20,0])elbowBearing2();
+//wrist1();
+//translate([-15,20,0])elbowBearing2();
+//translate([-15,40,0])elbowBearing2();
+//}
 //translate([-30,8,11])rotate([90,180,0])9g_servo();
 
 //checking assembly of wrist
@@ -43,7 +44,7 @@ translate([-15,40,0])elbowBearing2();
 //translate([0,0,9.5])rotate([0,180,318])elbowBearing2();
 
 //print 2 copies of the shoulder shaft mounts
-rotate([0,0,90])translate([-15,-55,0])shaftMount();
+//rotate([0,0,90])translate([-15,-55,0])shaftMount();
 rotate([0,0,90])translate([-15,45,0])shaftMount();
 
 
@@ -138,14 +139,23 @@ module shaftMount() {
 	difference() {
 		union() {
 			cylinder(h=height,d=holeDiam*2,$fn=detail);
-			translate([0,-holeDiam,0])cube([barLength,holeDiam*2,height]);
+			translate([0,-holeDiam,0])cube([barLength,holeDiam*2,height]);
+                    //clamp for shaft
+                    rotate([0,0,0])translate([-holeDiam*1.5,-holeDiam/2,0])cube([holeDiam,shaftDiam+shaftPad*2,height]);
 		}
 		cylinder(h=height,d=holeDiam,$fn=detail);
 		translate([holeDiam,0,shaftPos])rotate([0,90,0]) {
 			cylinder(h=barLength,d=shaftDiam,$fn=detail);
 			translate([-height,-shaftDiam/4,0])cube([height,shaftDiam/2,barLength]);
 		}
-		translate([barLength-holeDiam,holeDiam-4.5,1.5+shaftPos+shaftDiam/2])rotate([90,0,0])boltHoleNut(7,5.7,12,3.5);
+		translate([barLength-holeDiam,holeDiam-4.5,1.5+shaftPos+shaftDiam/2])rotate([90,0,0])boltHoleNut(7,5.7,12,3.5);
+                //keyway for shaft clamp
+                translate([-holeDiam*2,-1.4*shaftDiam/8,0])cube([bearingDiam*1.5,1.4*shaftDiam/4,height]);
+                //clamp bolts
+            translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2+1])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
+            translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2+1])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
+            translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2+height-6])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
+            translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(bearingThick+bearingMarg)/2+height-6])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
 	}
 	
 }
@@ -173,7 +183,7 @@ module boltHoleNut(headLength, headDiam, shaftLength, shaftDiam) {
 	union() {
 		cylinder(h=shaftLength,d=shaftDiam,$fn=detail);
 		translate([0,0,-headLength]) cylinder(h=headLength,d=headDiam,$fn=detail); //h=2.9
-		translate([0,0,shaftLength-2.4])cylinder(h=2.4,d=6.5,$fn=6);
+		translate([0,0,shaftLength-2.4])cylinder(h=2.4,d=6.8,$fn=6);
 	}
 }
 
