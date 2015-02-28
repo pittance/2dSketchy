@@ -1,4 +1,4 @@
-detail = 20;	//20=low, 80=high
+detail = 80;	//20=low, 80=high
 height = 15;
 barLength = 40;
 holeDiam = 8;	//M8 bolt
