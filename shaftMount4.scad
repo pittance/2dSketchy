@@ -1,4 +1,4 @@
-detail = 80;	//20=low, 80=high
+detail = 85;	//20=low, 85=high
 height = 15;
 barLength = 40;
 holeDiam = 8;	//M8 bolt
@@ -33,9 +33,9 @@ tiny=0.001;
 
 translate([0,10,0]) {
 translate([-15,-60,0])elbowBearing3();
-//translate([-15,-40,0])elbowBearing3();
-//translate([-15,-20,0])elbowBearing3();
-//translate([-15,40,0])elbowBearing3();
+translate([-15,-40,0])elbowBearing3();
+translate([-15,-20,0])elbowBearing3();
+translate([-15,0,0])elbowBearing3();
 
 //wrist assembly
 //wrist1();
@@ -132,8 +132,8 @@ module elbowBearing3() {
             //keyway for bearing clamp
             translate([-bearingDiam-tiny,-shaftDiam/8,0])cube([bearingDiam,shaftDiam/4,shaftPad+m3bolt+shaftDiam+shaftPad*2]);
             //clamp bolt
-            #translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(shaftPad+m3bolt+shaftDiam+shaftPad*2)-(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
-            #translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(shaftPad+m3bolt+shaftDiam+shaftPad*2)-(bearingThick+bearingMarg)/2])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
+            #translate([-bearingDiam+bearingDiam/4,-(shaftDiam+2*shaftPad)/2,(shaftPad+m3bolt+shaftDiam+shaftPad*2)-(5.5/2+0.1)])rotate([90,0,180])boltHole(3,5.5,tiny+shaftDiam+2*shaftPad,3);
+            #translate([-bearingDiam+bearingDiam/4,3+(shaftDiam+2*shaftPad)/2,(shaftPad+m3bolt+shaftDiam+shaftPad*2)-(5.5/2+0.1)])rotate([90,0,180])boltHole(3,6.3,tiny+shaftDiam+2*shaftPad,3);
         }
         
         //clamp bolt (shaft)
