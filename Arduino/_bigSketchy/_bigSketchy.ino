@@ -83,6 +83,12 @@ void loop() {
   stepper1.run();
   stepper2.run();
 }
+
+void drawTo(int posA, int posB) {
+}
+
+void travTo(int posA, int posB) {
+}
   
 
 int MS1_MODE(int MS1_StepMode){              // A function that returns a High or Low state number for MS1 pin
