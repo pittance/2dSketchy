@@ -2,7 +2,7 @@ float x1, y1, x, y, x2, y2;
 float a1, a2, a3, d, s, r;
 float aeff;   //effective length of RH arm incl extension
 float sigma,phi;  //another angle in the lower RH arm (between aeff and a3)
-float offx = 250;  //offset of LHS in x
+float offx = 640/2-50;  //offset of LHS in x
 float offy = 50;   //offset of LHS in y
 float alph = 120;
 float beta = 120;
