@@ -1,12 +1,11 @@
 float x1, y1, x, y, x2, y2;
 float a1, a2, a3, d, s, r;
-float aeff;   //effective length of RH arm incl extension
+float aeff;       //effective length of RH arm incl extension
 float sigma,phi;  //another angle in the lower RH arm (between aeff and a3)
-float offx = 640/2-50;  //offset of LHS in x
-float offy = 50;   //offset of LHS in y
-float alph = 120;
-float beta = 120;
-float delta;  //angle for extension relative to lower arm on RHS
+float offx;       //offset of LHS in x
+float offy;       //offset of LHS in y
+float alph;
+float beta;
 float xo,yo;
 float xprime,yprime;
 float x1_2, y1_2, x2_2, y2_2;
@@ -15,15 +14,21 @@ float ang1, ang2, ang3, ang4;
 float xlength, ylength, hyp;
 float cosC, sinA;
 
+PFont p;
+
 void setup() {
   size(640, 480);
   smooth();
-  a1 = 150;  //arm length - upper
-  a2 = 200;  //arm length - lower
-  a3 = 20;   //arm length - pen extension
-  aeff = a2+a3;
-  
-  d = 100;   //separation of shoulders
+  p = createFont("arial",10);
+  textFont(p,10);
+  //initialisation
+  offx = 640/2-50;   //offset of LHS in x
+  offy = 50;         //offset of LHS in y
+  a1 = 150;          //arm length - upper
+  a2 = 200;          //arm length - lower
+  a3 = 20;           //arm length - pen extension
+  aeff = a2+a3;      //effective lower arm length incl extension
+  d = 100;           //separation of shoulders
 }
 
 void draw() {
@@ -42,6 +47,9 @@ void draw() {
     x = mouseX;
     y = mouseY;
     revcalcExt(x, y);
+    fill(0);
+    text("alph: " + alph,offx,offy);
+    text("beta: " + beta,offx+d,offy);
     noFill();
     stroke(0);
     drawArmsExt();

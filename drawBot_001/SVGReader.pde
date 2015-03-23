@@ -128,8 +128,109 @@ class SVGReader {
   }
   
   class Plotter {
+    float x1, y1, x, y, x2, y2;
+    float a1, a2, a3, d, s, r;
+    float aeff;       //effective length of RH arm incl extension
+    float sigma,phi;  //another angle in the lower RH arm (between aeff and a3)
+    float offx;       //offset of LHS in x
+    float offy;       //offset of LHS in y
+    float alph;
+    float beta;
+    float xo,yo;
+    float xprime,yprime;
+    float x1_2, y1_2, x2_2, y2_2;
+    float xchange, ychange;
+    float ang1, ang2, ang3, ang4;
+    float xlength, ylength, hyp;
+    float cosC, sinA;
+
     Plotter() {
+      //initialisation
+      offx = 640/2-50;   //offset of LHS in x
+      offy = 50;         //offset of LHS in y
+      a1 = 150;          //arm length - upper
+      a2 = 200;          //arm length - lower
+      a3 = 20;           //arm length - pen extension
+      aeff = a2+a3;      //effective lower arm length incl extension
+      d = 100;           //separation of shoulders
+      
+      /*
+        alpha and beta are the angles of the arms:
+              0deg                0deg
+              |                   |  
+              |                   | 
+              |                   | 
+      90deg---o [alpha]   [beta]  o---90deg
+              |                   | 
+              |                   |                        
+              |                   |  
+            180deg              180deg 
+      */
+      /*
+        coordinate system:
+              <offx><---d---->
+              ^     o        o
+            offy
+              x--------------------|
+              |                    |
+              |         A3         |
+              |                    |
+              |                    |
+              |____________________|
+      */
     }
+    
+    float[] alphabeta(float x, float y) {
+      //includes straight extension for pen beyond wrist joint
+      
+      //RH arm (incl extension)
+      //aeff is calculate once in setup
+      xlength = x - (offx + d);
+      ylength = y - offy;
+      hyp = dist((offx + d), offy, x, y);
+      cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
+      ang1 = degrees(acos(cosC));
+      sinA = (a1*sin(radians(ang1)))/aeff;
+      ang4 = degrees(asin(sinA));
+      ang2 = (degrees(asin(xlength / hyp))) - ang4;
+      ang3 = 90 - ang2;
+      xchange = aeff*sin(radians((ang2)));
+      ychange = -aeff*sin(radians((ang3)));
+      x2_2 = x - xchange;
+      y2_2 = y + ychange;
+      beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
+      phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
+      xo=cos(radians(phi))*a3;
+      yo=sin(radians(phi))*a3;
+      
+      xprime = x-xo;
+      yprime = y-yo;
+      
+      xlength = xprime - offx;
+      ylength = yprime - offy;
+      hyp = dist(offx, offy, xprime, yprime);
+      cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
+      ang1 = degrees(acos(cosC));
+      sinA = (a1*sin(radians(ang1)))/a2;
+      ang4 = degrees(asin(sinA));
+      ang2 = (degrees(asin(xlength / hyp))) + ang4;
+      ang3 = 90 - ang2;
+      xchange = -a2*sin(radians((ang2)));
+      ychange = -a2*sin(radians((ang3)));
+      x1_2 = xprime + xchange;
+      y1_2 = yprime + ychange;
+      
+      alph = (degrees(atan2((y1_2-offy), (x1_2-offx))));
+      if (alph < 0){
+        alph = (90 + alph) * -1;
+      } 
+      else {
+        alph = 270 - alph;
+      }
+      float[] out =  {alph,beta};
+      return out;
+    }
+    
   }
   
 //  private void plotCurvesLinearStep(int index) {
