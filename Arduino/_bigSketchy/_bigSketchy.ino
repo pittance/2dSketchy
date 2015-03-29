@@ -26,7 +26,7 @@ AccelStepper stepper2(1, M2_STP, M2_DIR);
 #define ACCEL 2000
 
 int stpCount = 0;
-int modeType = 2;
+int modeType = 8;
 static int stepTo = 25*modeType;  //should be one complete motor revolution (200 @ 8x microstep)
 int pos1 = -stepTo;
 int pos2 = stepTo;

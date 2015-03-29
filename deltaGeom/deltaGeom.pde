@@ -50,13 +50,32 @@ void draw() {
     fill(0);
     text("alph: " + alph,offx,offy);
     text("beta: " + beta,offx+d,offy);
+    text("input: " + x + " " + y,offx+d/2,offy/2);
+    text(checkCalc(alph,beta),offx+d/2,offy/2+10);
     noFill();
     stroke(0);
     drawArmsExt();
   } 
 }
 
-
+String checkCalc(float al, float be) {
+  //predicts x and y from alpha and beta (check of IK calc)
+  float xa,ya,xb,yb;  //positions of the elbows
+  xa = offx-a1*cos(radians(alph-90));
+  ya = offy+a1*sin(radians(alph-90));
+  xb = offx+d+a1*cos(radians(beta-90));
+  yb = offy+a1*sin(radians(beta-90));
+//  println(xa+" "+ya+" "+xb+" "+yb);
+  float sep = dist(xa,ya,xb,yb);
+//  println(sep);
+  float ange = acos((sep/2)/a2);
+//  println(degrees(ange));
+  float angh = atan2((yb-ya),(xb-xa));
+  println(degrees(angh));
+  float newX = xb-(aeff*cos(ange-angh));
+  float newY = yb+(aeff*sin(ange-angh));
+  return "output: " + newX + " " + newY;
+}
 
 void revcalcExt(float x, float y) {
   //includes angled extension for pen

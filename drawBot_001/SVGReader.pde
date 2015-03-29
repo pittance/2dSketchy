@@ -134,8 +134,6 @@ class SVGReader {
     float sigma,phi;  //another angle in the lower RH arm (between aeff and a3)
     float offx;       //offset of LHS in x
     float offy;       //offset of LHS in y
-    float alph;
-    float beta;
     float xo,yo;
     float xprime,yprime;
     float x1_2, y1_2, x2_2, y2_2;
@@ -143,16 +141,52 @@ class SVGReader {
     float ang1, ang2, ang3, ang4;
     float xlength, ylength, hyp;
     float cosC, sinA;
+    
+    float poffx, poffy, pwide, phigh;
+    
+    float alph;             //exact angle of alpha
+    float beta;             //exact angle of beta
+    float appAlph;          //approximate (stepped) alpha
+    float appBeta;          //approximate (stepped) beta
+    
+    float anglePerStep;     //degrees per step
+    float gearRatio = 40/9;
+    float stepsPerRev = 200;
+    float microStep = 8;
+    anglePerStep = 360/(gearRatio * stepsPerRev * microStep);
+    
+    int aSteps=0;           //step counter
+    int bSteps=0;           //step counter
+    
+    float xHome,yHome;      //home point coordinates
 
     Plotter() {
-      //initialisation
-      offx = 640/2-50;   //offset of LHS in x
-      offy = 50;         //offset of LHS in y
-      a1 = 150;          //arm length - upper
-      a2 = 200;          //arm length - lower
-      a3 = 20;           //arm length - pen extension
+      //initialisation of plotter - (0,0) is top left of board
+      offx = 281;        //offset of LHS in x
+      offy = 32;         //offset of LHS in y
+      a1 = 220;          //arm length - upper
+      a2 = 398;          //arm length - lower
+      a3 = 33;           //arm length - pen extension
       aeff = a2+a3;      //effective lower arm length incl extension
-      d = 100;           //separation of shoulders
+      d = 201;           //separation of shoulders
+      
+      //initialisation of page - (0,0) is top left of board
+      poffx = 172.5;
+      poffy = 150;
+      pwide = 420;
+      phigh = 297;
+      
+      //set home position
+      xHome = 380;
+      yHome = 580;
+      float[] temp = alphabeta(xHome,yHome);
+      alph = temp[0];
+      beta = temp[1];
+      //assume start position is a whole step + exact
+      appAlph = alph;
+      appBeta = beta;
+      aSteps = 0;
+      bSteps = 0;
       
       /*
         alpha and beta are the angles of the arms:
@@ -181,8 +215,8 @@ class SVGReader {
     }
     
     float[] alphabeta(float x, float y) {
-      //includes straight extension for pen beyond wrist joint
-      
+      //inverse kinematic calculation - calculate alpha and beta for input x,y
+            
       //RH arm (incl extension)
       //aeff is calculate once in setup
       xlength = x - (offx + d);
@@ -232,6 +266,30 @@ class SVGReader {
     }
     
   }
+  
+  float[] xy(float alphaAng, float betaAng) {
+    //forward kinematic calculation - calculate x,y for input alpha and beta
+    //predicts x and y from alpha and beta (check of IK calc)
+    float xa,ya,xb,yb;  //positions of the elbows
+    xa = offx-a1*cos(radians(alph-90));
+    ya = offy+a1*sin(radians(alph-90));
+    xb = offx+d+a1*cos(radians(beta-90));
+    yb = offy+a1*sin(radians(beta-90));
+    float sep = dist(xa,ya,xb,yb);
+    float ange = acos((sep/2)/a2);
+    float angh = atan2((yb-ya),(xb-xa));
+    float newX = xb-(aeff*cos(ange-angh));
+    float newY = yb+(aeff*sin(ange-angh));
+    float[] out =  {newX,newY};
+    return out;
+  }
+  
+  void drawTo(float x, float y) {
+  }
+  
+  void travTo(float x, float y) {
+  }
+  
   
 //  private void plotCurvesLinearStep(int index) {
 //    RPoint[] pts = lin[index].getPoints();
