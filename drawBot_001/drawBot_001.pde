@@ -20,13 +20,32 @@ int screenHigh = drawHigh + (2*screenPad);
 
 boolean screenOnly = true;
 
+String outConsole;
+Serial myPort;  // Create object from Serial class
+
 void setup() {
   size(screenWide,screenHigh);
   smooth();
   selectInput("Select a file to process:", "fileSelected");
-      
-//    println(Serial.list());
   
+  //list ports
+  println(Serial.list());
+  // variables for serial connection to EiBotBoard
+  
+  // setup serial port
+  try {
+    String portName = Serial.list()[0];
+    println(Serial.list());
+    myPort = new Serial(this, portName, 9600);
+    //serial device found
+    println("found: " + portName);
+  } catch (ArrayIndexOutOfBoundsException e) {
+    //no serial device found
+    println("didn't find eggbot");
+    exit();
+    //writeToConsole = true;
+  }
+    
   while(!readerOK) {
     if(!svg.equals("")) {
       reader = new SVGReader(this, svg, drawWide, drawHigh);

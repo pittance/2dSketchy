@@ -153,14 +153,21 @@ class SVGReader {
     float gearRatio = 40/9;
     float stepsPerRev = 200;
     float microStep = 8;
-    anglePerStep = 360/(gearRatio * stepsPerRev * microStep);
+    
     
     int aSteps=0;           //step counter
     int bSteps=0;           //step counter
     
     float xHome,yHome;      //home point coordinates
-
+    
+    // pen settings
+    int penPause = 250;
+    int penUpVal = 12000;  //28000
+    int penDownVal = 14000;  //22000
+    String outConsole;
+    
     Plotter() {
+      anglePerStep = 360/(gearRatio * stepsPerRev * microStep);
       //initialisation of plotter - (0,0) is top left of board
       offx = 281;        //offset of LHS in x
       offy = 32;         //offset of LHS in y
@@ -188,30 +195,37 @@ class SVGReader {
       aSteps = 0;
       bSteps = 0;
       
-      /*
-        alpha and beta are the angles of the arms:
-              0deg                0deg
-              |                   |  
-              |                   | 
-              |                   | 
-      90deg---o [alpha]   [beta]  o---90deg
-              |                   | 
-              |                   |                        
-              |                   |  
-            180deg              180deg 
-      */
-      /*
-        coordinate system:
-              <offx><---d---->
-              ^     o        o
-            offy
-              x--------------------|
-              |                    |
-              |         A3         |
-              |                    |
-              |                    |
-              |____________________|
-      */
+//      
+//        alpha and beta are the angles of the arms:
+//              0deg                0deg
+//              |                   |  
+//              |                   | 
+//              |                   | 
+//      90deg---o [alpha]   [beta]  o---90deg
+//              |                   | 
+//              |                   |                        
+//              |                   |  
+//            180deg              180deg 
+//      
+//      
+//        coordinate system:
+//              <offx><---d---->
+//              ^     o        o
+//            offy
+//              x--------------------|
+//              |                    |
+//              |         A3         |
+//              |                    |
+//              |                    |
+//              |____________________|
+//      
+      
+      outConsole = ("SC,4," + penDownVal + "\r");  //17000? SC,4,<servo_min> - sets the minimum value for the servo (1 to 65535)
+      myPort.write(outConsole);
+      outConsole = ("SC,11,300\r");  //SC,10,<servo_rate> - sets the rate of change of the servo (when going up/down)
+      myPort.write(outConsole);
+      outConsole = ("SC,12,500\r");  //SC,10,<servo_rate> - sets the rate of change of the servo (when going up/down)
+      myPort.write(outConsole);
     }
     
     float[] alphabeta(float x, float y) {
@@ -264,152 +278,50 @@ class SVGReader {
       float[] out =  {alph,beta};
       return out;
     }
+  
+    float[] xy(float alphaAng, float betaAng) {
+      //forward kinematic calculation - calculate x,y for input alpha and beta
+      //predicts x and y from alpha and beta (check of IK calc)
+      float xa,ya,xb,yb;  //positions of the elbows
+      xa = offx-a1*cos(radians(alph-90));
+      ya = offy+a1*sin(radians(alph-90));
+      xb = offx+d+a1*cos(radians(beta-90));
+      yb = offy+a1*sin(radians(beta-90));
+      float sep = dist(xa,ya,xb,yb);
+      float ange = acos((sep/2)/a2);
+      float angh = atan2((yb-ya),(xb-xa));
+      float newX = xb-(aeff*cos(ange-angh));
+      float newY = yb+(aeff*sin(ange-angh));
+      float[] out =  {newX,newY};
+      return out;
+    }
+  
+    void drawTo(float x, float y) {
+    }
     
+    void travTo(float x, float y) {
+      //traverse move (faster, no intermediate points)
+      int moveTime = 200;
+      int revolutionA = 200;
+      int revolutionB = 200;
+      if (!((revolutionA==0) && (revolutionB==0))) {
+        //don't write zero length moves to serial
+        String outConsole = ("SM," + moveTime + "," + revolutionA + "," + revolutionB + "\r");
+        myPort.write(outConsole);
+      }
+    }
+    
+    void penDown() {
+      //pen down
+      String outConsole = ("SP,1," + penPause + "\r"); //SP,<value>,<duration> : <value> is 0 (for up) or 1 (for down)
+      myPort.write(outConsole);
+    }
+    
+    void penUp() {
+      //pen up
+      String outConsole = ("SP,0," + penPause + "\r"); //SP,<value>,<duration> : <value> is 0 (for up) or 1 (for down)
+      myPort.write(outConsole);
+    }
   }
-  
-  float[] xy(float alphaAng, float betaAng) {
-    //forward kinematic calculation - calculate x,y for input alpha and beta
-    //predicts x and y from alpha and beta (check of IK calc)
-    float xa,ya,xb,yb;  //positions of the elbows
-    xa = offx-a1*cos(radians(alph-90));
-    ya = offy+a1*sin(radians(alph-90));
-    xb = offx+d+a1*cos(radians(beta-90));
-    yb = offy+a1*sin(radians(beta-90));
-    float sep = dist(xa,ya,xb,yb);
-    float ange = acos((sep/2)/a2);
-    float angh = atan2((yb-ya),(xb-xa));
-    float newX = xb-(aeff*cos(ange-angh));
-    float newY = yb+(aeff*sin(ange-angh));
-    float[] out =  {newX,newY};
-    return out;
-  }
-  
-  void drawTo(float x, float y) {
-  }
-  
-  void travTo(float x, float y) {
-  }
-  
-  
-//  private void plotCurvesLinearStep(int index) {
-//    RPoint[] pts = lin[index].getPoints();
-//    if(pts != null){
-//      if (plotToEggbot) {
-//        plotter.penUp();
-//        plotter.traversePC(scaler*pts[0].x,tscaleY*scaler*pts[0].y+tshiftY);
-//        plotter.penDown();
-//        stroke(200,50,0);
-//        noFill();
-//        beginShape();
-//      } else {
-//        //start to draw on screen
-//        stroke(0,200,0);
-//        noFill();
-//        beginShape();
-//      }
-//      for(int j=0; j<pts.length-1; j++) {
-//        //loop through points
-//        if (plotToEggbot) {
-//          plotter.plotPC(scaler*pts[j].x,tscaleY*scaler*pts[j].y+tshiftY,scaler*pts[j+1].x,tscaleY*scaler*pts[j+1].y+tshiftY);
-//          vertex(screenScale*pts[j].x, screenScale*pts[j].y);
-//        } else {
-//          vertex(screenScale*pts[j].x, screenScale*pts[j].y);
-//        }
-//      }
-//      if (plotToEggbot) {
-//        plotter.penUp();
-//        endShape(); 
-//      } else {
-//        vertex(screenScale*pts[pts.length-1].x, screenScale*pts[pts.length-1].y);
-//        endShape(); 
-//      }      
-//    }
-//  }
-//  
-//  private void plotCurvesLinear() {
-//    //plots a linear array of curves in shp, found by recursively running over the input SVG in plotCurves
-//    for (int i=0;i<lin.length;i++) {
-//      plotCurvesLinearStep(i);
-//    }
-//  }
-//    
-//  private void plotCurves(RShape shp) {
-//    //recursively traverse through the children of the shape
-//    int childs = shp.children.length;
-//    for (int i=0;i<childs;i++) {
-//      //println("child count: " + i);
-//      if (shp.children[i].children == null) {
-//        //child has no children, found a shape, plot it
-//        //println("plotting shape...");
-//        RPoint[] pts = shp.children[i].getPoints();
-//        //plotting on the machine
-//        //traverse out to start point
-//        if(pts != null) {
-//          if (plotToEggbot) {
-//            plotter.penUp();
-//            plotter.traversePC(scaler*pts[0].x,tscaleY*scaler*pts[0].y+tshiftY);
-//            plotter.penDown();
-//          } else {
-//            //add a child to lin
-//            lin = (RShape[])expand(lin,lin.length+1);
-//            lin[lin.length-1] = shp.children[i];
-//            //start to draw on screen
-//            stroke(0,200,0);
-//            noFill();
-//            beginShape();
-//          }
-//          for(int j=0; j<pts.length-1; j++) {
-//            //loop through points
-//            if (plotToEggbot) {
-//              plotter.plotPC(scaler*pts[j].x,tscaleY*scaler*pts[j].y+tshiftY,scaler*pts[j+1].x,tscaleY*scaler*pts[j+1].y+tshiftY);
-//            } else {
-//              vertex(screenScale*pts[j].x, screenScale*pts[j].y);
-//            }
-//          }
-//          if (plotToEggbot) {
-//            plotter.penUp();
-//          } else {
-//            vertex(screenScale*pts[pts.length-1].x, screenScale*pts[pts.length-1].y);
-//            endShape(); 
-//          }      
-//        }
-//      } else {
-//        //child has children, call plotCurves again on it
-//        plotCurves(shp.children[i]);
-//      }
-//    }
-//  }
-//  void plot() {
-//    plotToEggbot = true;
-//    plotter.penUp();
-//    plotCurves(rs);
-//    plotter.goHome();
-//    //can't shut down plotter here - it always stops before the final move home
-//  }
-//  
-//  void plotLin() {
-//    plotToEggbot = true;
-//    plotter.penUp();
-//    plotCurvesLinear();
-//    plotter.goHome();
-//    //can't shut down plotter here - it always stops before the final move home
-//  }
-//  
-//  void plotLinNext() {
-//    if (plotStep == 0) {
-//      println("start writing to eggbot");
-//      plotToEggbot = true;
-//      plotter.penUp();
-//    }
-//    //println("step: " + plotStep);
-//    if (plotStep > lin.length-1) {
-//      //plotting ended, go home
-//      if (!ended) plotter.goHome();
-//      ended = true;
-//    } else {
-//      plotCurvesLinearStep(plotStep);
-//      plotStep++;
-//    }
-//  }
   
 }
