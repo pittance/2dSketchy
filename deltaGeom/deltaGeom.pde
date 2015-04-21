@@ -16,6 +16,10 @@ float cosC, sinA;
 
 PFont p;
 
+float outX,outY;
+float[] xPoints;
+float[] yPoints;
+
 void setup() {
   size(640, 480);
   smooth();
@@ -29,9 +33,30 @@ void setup() {
   a3 = 20;           //arm length - pen extension
   aeff = a2+a3;      //effective lower arm length incl extension
   d = 100;           //separation of shoulders
+  float degPerStep = 360f/(200*8*(40f/9f));
+  int stepFrom = 100;
+  int stepTo = 110;
+  int steps = int((stepTo-stepFrom)/degPerStep);
+  println("degrees per step: " + degPerStep);
+  println("stepping from " + stepFrom + " to " + stepTo);
+  println("for a total number of steps of " + steps);
+  xPoints = new float[steps*steps];
+  yPoints = new float[steps*steps];
+  int count = 0;
+  for (int i=stepFrom;i<steps;i++) {
+    for (int j=stepFrom;j<steps;j++) {
+      xy(i*degPerStep,j*degPerStep);
+      xPoints[count] = outX;
+      yPoints[count] = outY;
+      count++;
+    }
+    println(count);
+  }
+  noLoop();
 }
 
 void draw() {
+  println("drawing background");
   background(226);
   fill(50,50);
   noStroke();
@@ -41,6 +66,20 @@ void draw() {
   fill(255,50);
   ellipse(offx,offy,2*(a2-a1),2*(a2-a1));
   ellipse(offx+d,offy,2*(a2-a1),2*(a2-a1));
+  println("drawing points");
+  //draw machine points
+  int pointsToDraw = xPoints.length;
+//  loadPixels();
+  fill(0);
+  noStroke();
+  for (int i=0;i<pointsToDraw;i++) {
+    ellipse(xPoints[i],yPoints[i],1,1);
+    println(xPoints[i]+" "+yPoints[i]);
+//    pixels[int(yPoints[i])*width+int(xPoints[i])] = #000000;
+    if (i%20000==0) println(i);
+  }
+//  updatePixels();
+  
   
   if (dist(offx,offy,mouseX,mouseY) < (a1+a2) && dist((offx+d),offy,mouseX,mouseY) < (a1+a2) && mouseY > offy){
     //condition for the end point within the range of the arms
@@ -194,6 +233,24 @@ void revcalc(float x, float y) {
   y2_2 = y + ychange;
   
   beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
+}
+
+void xy(float alphaAng, float betaAng) {
+  //forward kinematic calculation - calculate x,y for input alpha and beta
+  //predicts x and y from alpha and beta (check of IK calc)
+  float xa,ya,xb,yb;  //positions of the elbows
+  xa = offx-a1*cos(radians(alphaAng-90));
+  ya = offy+a1*sin(radians(alphaAng-90));
+  xb = offx+d+a1*cos(radians(betaAng-90));
+  yb = offy+a1*sin(radians(betaAng-90));
+  float sep = dist(xa,ya,xb,yb);
+  float ange = acos((sep/2)/a2);
+  float angh = atan2((yb-ya),(xb-xa));
+  float newX = xb-(aeff*cos(ange-angh));
+  float newY = yb+(aeff*sin(ange-angh));
+  outX = newX;
+  outY = newY;
+//  println(alphaAng + " " + betaAng + " " + outX + " " + outY);
 }
 
 

@@ -144,12 +144,16 @@ class SVGReader {
     
     float poffx, poffy, pwide, phigh;
     
+    //current positions
     float alph;             //exact angle of alpha
     float beta;             //exact angle of beta
     float appAlph;          //approximate (stepped) alpha
     float appBeta;          //approximate (stepped) beta
+    //target positions
+    float alphT;
+    float betaT;
     
-    float anglePerStep;     //degrees per step
+    float anglePerStep;     //degrees per step, set in constructor
     float gearRatio = 40/9;
     float stepsPerRev = 200;
     float microStep = 8;
@@ -166,8 +170,20 @@ class SVGReader {
     int penDownVal = 14000;  //22000
     String outConsole;
     
+    //speed settings
+    int maxStepsPerSecond = 500;
+//    Implement speed control by rotational speed at shoulder, not at pen
+//    (max stepper speed is the only thing we care about and pen speed
+//    is only tangentially related to this) so we check for each motor
+//    move what is the limiting stepper (normally the one moving farthest)
+//    and move that at the fastest speed we define and then the other will
+//    move slower. This should mean that the plotter always moves as fast
+//    as it can (unless we want to slow it down for some reason)
+    
     Plotter() {
+      //degrees per step (~0.05 for 8x microstep and 40/9 ratio)
       anglePerStep = 360/(gearRatio * stepsPerRev * microStep);
+      
       //initialisation of plotter - (0,0) is top left of board
       offx = 281;        //offset of LHS in x
       offy = 32;         //offset of LHS in y
@@ -183,12 +199,14 @@ class SVGReader {
       pwide = 420;
       phigh = 297;
       
+      //TEMPORARY - TO BE REPLACED WITH HOMING
       //set home position
       xHome = 380;
-      yHome = 580;
+      yHome = 575;
       float[] temp = alphabeta(xHome,yHome);
       alph = temp[0];
       beta = temp[1];
+      
       //assume start position is a whole step + exact
       appAlph = alph;
       appBeta = beta;
@@ -283,10 +301,10 @@ class SVGReader {
       //forward kinematic calculation - calculate x,y for input alpha and beta
       //predicts x and y from alpha and beta (check of IK calc)
       float xa,ya,xb,yb;  //positions of the elbows
-      xa = offx-a1*cos(radians(alph-90));
-      ya = offy+a1*sin(radians(alph-90));
-      xb = offx+d+a1*cos(radians(beta-90));
-      yb = offy+a1*sin(radians(beta-90));
+      xa = offx-a1*cos(radians(alphaAng-90));
+      ya = offy+a1*sin(radians(alphaAng-90));
+      xb = offx+d+a1*cos(radians(betaAng-90));
+      yb = offy+a1*sin(radians(betaAng-90));
       float sep = dist(xa,ya,xb,yb);
       float ange = acos((sep/2)/a2);
       float angh = atan2((yb-ya),(xb-xa));
@@ -301,14 +319,30 @@ class SVGReader {
     
     void travTo(float x, float y) {
       //traverse move (faster, no intermediate points)
-      int moveTime = 200;
-      int revolutionA = 200;
-      int revolutionB = 200;
-      if (!((revolutionA==0) && (revolutionB==0))) {
+      //move - new exact target values
+      float[] newAng = alphabeta(x,y);
+      alphT = newAng[0];
+      betaT = newAng[1];
+      //find angle deltas from current stepped position to target exact
+      float deltaAT = alphT-appAlph;
+      float deltaBT = betaT-appBeta;
+      //find step deltas
+      int deltaStepAT = int(deltaAT/anglePerStep);
+      int deltaStepBT = int(deltaBT/anglePerStep);
+      //find step time
+      float moveTime = max((float(deltaStepAT)/maxStepsPerSecond),(float(deltaStepBT)/maxStepsPerSecond));
+      
+      if (!((deltaStepAT==0) && (deltaStepBT==0))) {
         //don't write zero length moves to serial
-        String outConsole = ("SM," + moveTime + "," + revolutionA + "," + revolutionB + "\r");
+        String outConsole = ("SM," + moveTime + "," + deltaStepAT + "," + deltaStepBT + "\r");
         myPort.write(outConsole);
       }
+      
+      //re-set current
+      alph = alphT;
+      beta = betaT;
+      appAlph = alph + (deltaStepAT*anglePerStep);
+      appBeta = beta + (deltaStepBT*anglePerStep);
     }
     
     void penDown() {
