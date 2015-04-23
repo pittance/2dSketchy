@@ -19,6 +19,7 @@ int drawHigh = int(float(drawWide)*(float(A3height)/float(A3width)));
 int screenHigh = drawHigh + (2*screenPad);
 
 boolean screenOnly = true;
+boolean drawing = false;
 
 String outConsole;
 Serial myPort;  // Create object from Serial class
@@ -42,7 +43,7 @@ void setup() {
   } catch (ArrayIndexOutOfBoundsException e) {
     //no serial device found
     println("didn't find eggbot");
-    exit();
+//    exit();
     //writeToConsole = true;
   }
     
@@ -54,6 +55,8 @@ void setup() {
       reader.parse();
     }
   }
+  
+  //test movement code
   
 }
 
@@ -68,6 +71,10 @@ void draw() {
     scale(reader.scaler);
     reader.plotSVG();
   popMatrix();
+  
+  if (drawing) {
+    reader.plotLinNext();
+  }
 }
 
 void fileSelected(File selection) {
@@ -78,5 +85,19 @@ void fileSelected(File selection) {
   } else {
     println("User selected " + selection.getAbsolutePath());
     svg = selection.getAbsolutePath();
+  }
+}
+
+void keyPressed() {
+  if (key == 'x') reader.plot.shutDown();
+//  if (key == 'a') reader.plotter.penUp();
+//  if (key == 'z') reader.plotter.penDown();
+//  if (key == 'p') reader.plot();
+//  //if (key == 'l') reader.plotLin();
+  if (key == 't') reader.plot.travTo(380,500);
+  if (key == 'g') reader.plot.travTo(380,575);
+  if (key == 's') {
+    println("writing to eggbot now");
+    drawing = true;
   }
 }

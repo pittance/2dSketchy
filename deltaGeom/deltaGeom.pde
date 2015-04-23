@@ -21,42 +21,42 @@ float[] xPoints;
 float[] yPoints;
 
 void setup() {
-  size(640, 480);
+  size(760, 574);
   smooth();
   p = createFont("arial",10);
   textFont(p,10);
   //initialisation
-  offx = 640/2-50;   //offset of LHS in x
-  offy = 50;         //offset of LHS in y
-  a1 = 150;          //arm length - upper
-  a2 = 200;          //arm length - lower
-  a3 = 20;           //arm length - pen extension
+  offx = 280;   //offset of LHS in x
+  offy = 30;         //offset of LHS in y
+  a1 = 217;          //arm length - upper
+  a2 = 395;          //arm length - lower
+  a3 = 25;           //arm length - pen extension
   aeff = a2+a3;      //effective lower arm length incl extension
-  d = 100;           //separation of shoulders
-  float degPerStep = 360f/(200*8*(40f/9f));
-  int stepFrom = 100;
-  int stepTo = 110;
-  int steps = int((stepTo-stepFrom)/degPerStep);
-  println("degrees per step: " + degPerStep);
-  println("stepping from " + stepFrom + " to " + stepTo);
-  println("for a total number of steps of " + steps);
-  xPoints = new float[steps*steps];
-  yPoints = new float[steps*steps];
-  int count = 0;
-  for (int i=stepFrom;i<steps;i++) {
-    for (int j=stepFrom;j<steps;j++) {
-      xy(i*degPerStep,j*degPerStep);
-      xPoints[count] = outX;
-      yPoints[count] = outY;
-      count++;
-    }
-    println(count);
-  }
-  noLoop();
+  d = 200;           //separation of shoulders
+//  float degPerStep = 360f/(200*8*(40f/9f));
+//  int stepFrom = 100;
+//  int stepTo = 110;
+//  int steps = int((stepTo-stepFrom)/degPerStep);
+//  println("degrees per step: " + degPerStep);
+//  println("stepping from " + stepFrom + " to " + stepTo);
+//  println("for a total number of steps of " + steps);
+//  xPoints = new float[steps*steps];
+//  yPoints = new float[steps*steps];
+//  int count = 0;
+//  for (int i=stepFrom;i<steps;i++) {
+//    for (int j=stepFrom;j<steps;j++) {
+//      xy(i*degPerStep,j*degPerStep);
+//      xPoints[count] = outX;
+//      yPoints[count] = outY;
+//      count++;
+//    }
+//    println(count);
+//  }
+//  noLoop();
 }
 
 void draw() {
-  println("drawing background");
+//  println("drawing background");
   background(226);
   fill(50,50);
   noStroke();
@@ -66,18 +66,18 @@ void draw() {
   fill(255,50);
   ellipse(offx,offy,2*(a2-a1),2*(a2-a1));
   ellipse(offx+d,offy,2*(a2-a1),2*(a2-a1));
-  println("drawing points");
+//  println("drawing points");
   //draw machine points
-  int pointsToDraw = xPoints.length;
+//  int pointsToDraw = xPoints.length;
 //  loadPixels();
   fill(0);
   noStroke();
-  for (int i=0;i<pointsToDraw;i++) {
-    ellipse(xPoints[i],yPoints[i],1,1);
-    println(xPoints[i]+" "+yPoints[i]);
-//    pixels[int(yPoints[i])*width+int(xPoints[i])] = #000000;
-    if (i%20000==0) println(i);
-  }
+//  for (int i=0;i<pointsToDraw;i++) {
+//    ellipse(xPoints[i],yPoints[i],1,1);
+//    println(xPoints[i]+" "+yPoints[i]);
+////    pixels[int(yPoints[i])*width+int(xPoints[i])] = #000000;
+//    if (i%20000==0) println(i);
+//  }
 //  updatePixels();
   
   
@@ -110,7 +110,7 @@ String checkCalc(float al, float be) {
   float ange = acos((sep/2)/a2);
 //  println(degrees(ange));
   float angh = atan2((yb-ya),(xb-xa));
-  println(degrees(angh));
+//  println(degrees(angh));
   float newX = xb-(aeff*cos(ange-angh));
   float newY = yb+(aeff*sin(ange-angh));
   return "output: " + newX + " " + newY;
