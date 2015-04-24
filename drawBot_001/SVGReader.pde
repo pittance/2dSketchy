@@ -148,12 +148,12 @@ class SVGReader {
       if (i==0) {
         //first shape, traverse out to first point
         //pen up
-        plot.travTo(pts[0].x, pts[0].y);
+        plot.travTo(scaler*pts[0].x, scaler*pts[0].y);
       }
       //pen down
       for(int j=0; j<pts.length; j++) {
         //loop through points
-        plot.travTo(pts[j].x, pts[j].y);
+        plot.travTo(scaler*pts[j].x, scaler*pts[j].y);
       }
       //pen up
     }
@@ -164,14 +164,14 @@ class SVGReader {
     if(pts != null){
       //traverse to first point
 //      plot.penUp();
-      plot.travTo(pts[0].x,pts[0].y);
-      println("traverse move - x: " + pts[0].x + " y: " + pts[0].y);
+      plot.travTo(scaler*pts[0].x,scaler*pts[0].y);
+      println("traverse move - x: " + scaler*pts[0].x + " y: " + scaler*pts[0].y);
 //      plotter.penDown();
 
       for(int j=1; j<pts.length; j++) {
         //loop through points
-        plot.travTo(pts[j].x,pts[j].y);
-        println("draw move - x: " + pts[j].x + " y: " + pts[j].y);
+        plot.travTo(scaler*pts[j].x,scaler*pts[j].y);
+        println("draw move - x: " + scaler*pts[j].x + " y: " + scaler*pts[j].y);
       }
     }
   }
