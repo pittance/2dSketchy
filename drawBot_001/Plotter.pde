@@ -45,7 +45,10 @@ class Plotter {
   String outConsole;
   
   //speed settings
-  int maxStepsPerSecond = 800;
+  int maxStepsPerSecond = 1200;
+  int stepsPerSecond = 400;
+  float maxDrawDist = 0.5;
+  
 //    Implement speed control by rotational speed at shoulder, not at pen
 //    (max stepper speed is the only thing we care about and pen speed
 //    is only tangentially related to this) so we check for each motor
@@ -53,6 +56,8 @@ class Plotter {
 //    and move that at the fastest speed we define and then the other will
 //    move slower. This should mean that the plotter always moves as fast
 //    as it can (unless we want to slow it down for some reason)
+
+  boolean verbose = false;
   
   Plotter() {
     //degrees per step (~0.05 for 8x microstep and 40/9 ratio)
@@ -76,7 +81,7 @@ class Plotter {
     
     //initialisation of page - (0,0) is top left of board
     poffx = 172.5;
-    poffy = 150;
+    poffy = 250;
     pwide = 420;
     phigh = 297;
     
@@ -209,36 +214,55 @@ class Plotter {
   }
 
   void drawTo(float x, float y) {
+    float drawDist = dist(xCurrent,yCurrent,x,y);
+    if (drawDist>maxDrawDist) {
+      //split line
+      //determine intermediate points
+      int segments = int(drawDist/maxDrawDist);
+      float[] xinter = new float[segments];
+      float[] yinter = new float[segments];
+      for (int i=0;i<segments-1;i++) {
+        xinter[i] = map(i,0,segments-1,xCurrent,x);
+        yinter[i] = map(i,0,segments-1,yCurrent,y);
+      }
+      xinter[segments-1] = x;
+      yinter[segments-1] = y;
+      //draw intermediates and final
+      for (int i=0;i<segments;i++) {
+        travTo(xinter[i],yinter[i],stepsPerSecond);
+      }
+    } else {
+      //draw line in one segment
+      travTo(x,y,stepsPerSecond);
+    }
   }
   
-  void travTo(float x, float y) {
+  void travTo(float x, float y, int speed) {
     //traverse move (faster, no intermediate points)
     //move - new exact target values
     float[] newAng = alphabeta(x,y);
     alphT = newAng[0];
     betaT = newAng[1];
     
-//    float[] temp = alphabeta(xCurrent,yCurrent);
-//    alph = temp[0];
-//    beta = temp[1];
-    
-    println();
-    println("move command: " + x + " " + y);
-    println("calculated angles - current: " + alph + "/" + beta + " approx: " + appAlph + "/" + appBeta + " target: " + alphT + "/" + betaT);
+    if(verbose) {
+      println();
+      println("move command: " + x + " " + y);
+      println("calculated angles - current: " + alph + "/" + beta + " approx: " + appAlph + "/" + appBeta + " target: " + alphT + "/" + betaT);
+    }
     
     //find angle deltas from current stepped position to target exact
     float deltaAT = alphT-appAlph;
     float deltaBT = betaT-appBeta;
-    println("angle deltas: " + deltaAT + "/" + deltaBT);
+    if(verbose) println("angle deltas: " + deltaAT + "/" + deltaBT);
     
     //find step deltas
     int deltaStepAT = int(deltaAT/anglePerStep);
     int deltaStepBT = int(deltaBT/anglePerStep);
-    println("step deltas: " + (rev1*deltaStepAT) + "/" + (rev2*deltaStepBT));
+    if(verbose) println("step deltas: " + (rev1*deltaStepAT) + "/" + (rev2*deltaStepBT));
     
     //find step time
-    float moveTimeA = abs(float(deltaStepAT)/maxStepsPerSecond);
-    float moveTimeB = abs(float(deltaStepBT)/maxStepsPerSecond);
+    float moveTimeA = abs(float(deltaStepAT)/speed);
+    float moveTimeB = abs(float(deltaStepBT)/speed);
     float moveTime = 1000*max(moveTimeA,moveTimeB);  //milliseconds!
     
     int timer = int(moveTime);
@@ -248,24 +272,26 @@ class Plotter {
       println(outConsole);
       myPort.write(outConsole);
     }
-    
-    
-    
+   
     float delAlphStep = (deltaStepAT*anglePerStep);
     float delBetaStep = (deltaStepBT*anglePerStep);
-    println("alpha angle step from change: " + delAlphStep);
-    println("beta angle step from change:  " + delBetaStep);
+    if(verbose) {
+      println("alpha angle step from change: " + delAlphStep);
+      println("beta angle step from change:  " + delBetaStep);
+    }
     
     appAlph = alph + delAlphStep;
     appBeta = beta + delBetaStep;
-    println("setting approx: " + appAlph + "/" + appBeta);
+    if(verbose) {
+      println("setting approx: " + appAlph + "/" + appBeta);
     
-    //re-set current
-    println("reset current:  alph/beta:  " +alph+"/"+beta);
-    println("               alphT/betaA: " +alphT+"/"+betaT);
+      //re-set current
+      println("reset current:  alph/beta:  " +alph+"/"+beta);
+      println("               alphT/betaA: " +alphT+"/"+betaT);
+    }
     alph = alphT;
     beta = betaT;
-    println("check:          alph/beta:  " +alph+"/"+beta);
+    if(verbose) println("check:          alph/beta:  " +alph+"/"+beta);
     
     xCurrent = x;
     yCurrent = y;
@@ -275,16 +301,18 @@ class Plotter {
     //pen down
     String outConsole = ("SP,1," + penPause + "\r"); //SP,<value>,<duration> : <value> is 0 (for up) or 1 (for down)
     myPort.write(outConsole);
+    wait(100);
   }
   
   void penUp() {
     //pen up
     String outConsole = ("SP,0," + penPause + "\r"); //SP,<value>,<duration> : <value> is 0 (for up) or 1 (for down)
     myPort.write(outConsole);
+    wait(100);
   }
   
   void goHome() {
-    travTo(xHome,yHome);
+    travTo(xHome,yHome,maxStepsPerSecond);
   }
   
   void shutDown() {
@@ -292,4 +320,15 @@ class Plotter {
     myPort.write(outConsole);
     println("shut down");
   }
+  
+  void wait(int timeMilli) {
+    boolean done = false;
+    long lastTime= millis();
+    while (!done) {
+      if(millis() - lastTime >= timeMilli){
+        done = true;
+      }
+    }
+  }
+  
 }

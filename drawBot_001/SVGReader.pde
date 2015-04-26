@@ -62,6 +62,18 @@ class SVGReader {
     lin = new RShape[0];
     parseSVG(rs);
     println("lin contains: " + lin.length);
+    printLin();
+  }
+  
+  private void printLin() {
+    int numInLin = lin.length;
+    for (int i=0;i<numInLin;i++) {
+      RPoint[] pts = lin[i].getPoints();
+      for(int j=0; j<pts.length; j++) {
+        //loop through points
+        println(i+ ": "+scaler*pts[j].x+","+scaler*pts[j].y);
+      }
+    }
   }
   
   private void parseSVG(RShape shp) {
@@ -127,15 +139,25 @@ class SVGReader {
   } 
   
   void plotSVG() {
+    //limit circles for drawing
+    
+    fill(50,50);
+    noStroke();
+    ellipse(plot.offx,plot.offy,2*(plot.a1+plot.a2),2*(plot.a1+plot.a2));
+    ellipse(plot.offx+plot.d,plot.offy,2*(plot.a1+plot.a2),2*(plot.a1+plot.a2));
+    fill(255,50);
+    ellipse(plot.offx,plot.offy,2*(plot.a2-plot.a1),2*(plot.a2-plot.a1));
+    ellipse(plot.offx+plot.d,plot.offy,2*(plot.a2-plot.a1),2*(plot.a2-plot.a1));
+    
     int numInLin = lin.length;
     for (int i=0;i<numInLin;i++) {
       RPoint[] pts = lin[i].getPoints();
-      stroke(0,200,0);
+      stroke(0);
       noFill();
       beginShape();
       for(int j=0; j<pts.length; j++) {
         //loop through points
-        vertex(pts[j].x, pts[j].y);
+        vertex(xformX(pts[j].x), xformY(pts[j].y));
       }
       endShape(); 
     }
@@ -148,12 +170,12 @@ class SVGReader {
       if (i==0) {
         //first shape, traverse out to first point
         //pen up
-        plot.travTo(scaler*pts[0].x, scaler*pts[0].y);
+        plot.travTo(xformX(pts[0].x), xformY(pts[0].y),plot.maxStepsPerSecond);
       }
       //pen down
       for(int j=0; j<pts.length; j++) {
         //loop through points
-        plot.travTo(scaler*pts[j].x, scaler*pts[j].y);
+        plot.drawTo(xformX(pts[j].x), xformY(pts[j].y));
       }
       //pen up
     }
@@ -163,17 +185,25 @@ class SVGReader {
     RPoint[] pts = lin[index].getPoints();
     if(pts != null){
       //traverse to first point
-//      plot.penUp();
-      plot.travTo(scaler*pts[0].x,scaler*pts[0].y);
-      println("traverse move - x: " + scaler*pts[0].x + " y: " + scaler*pts[0].y);
-//      plotter.penDown();
+      plot.penUp();
+      plot.travTo(xformX(pts[0].x),xformY(pts[0].y),plot.maxStepsPerSecond);
+      println("traverse move - x: " + xformX(pts[0].x) + " y: " + xformY(pts[0].y));
+      plot.penDown();
 
       for(int j=1; j<pts.length; j++) {
         //loop through points
-        plot.travTo(scaler*pts[j].x,scaler*pts[j].y);
-        println("draw move - x: " + scaler*pts[j].x + " y: " + scaler*pts[j].y);
+        plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));
+        println("draw move - x: " + xformX(pts[j].x) + " y: " + xformY(pts[j].y));
       }
     }
+  }
+  
+  float xformX(float xin) {
+    return ((xin*scaler)+plot.poffx);
+  }
+  
+  float xformY(float yin) {
+    return ((yin*scaler)+plot.poffy);
   }
   
   void plotLinNext() {

@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="_simpleTestPattern0.1.svg">
+   sodipodi:docname="_simpleTestPattern0.2.svg">
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -23,8 +23,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.70958731"
-     inkscape:cx="526.18109"
-     inkscape:cy="372.04724"
+     inkscape:cx="314.79062"
+     inkscape:cy="411.16268"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -45,7 +45,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -54,35 +54,38 @@
      inkscape:groupmode="layer"
      inkscape:label="Layer 1"
      transform="translate(0,-308.2677)">
-    <rect
-       style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.39361704;stroke-dasharray:none"
-       id="rect3061"
-       width="176.17097"
-       height="176.17097"
-       x="438.09561"
-       y="592.22943" />
-    <path
-       style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:0.56442654;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.39361704"
-       d="m 0.28221327,1052.4721 0,-99.43554"
-       id="rect2992"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:0.56442654;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.39361704"
-       d="m 0.28221327,408.18197 0,-99.43557 99.43556973,0"
-       id="rect3767"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:0.56442654;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.39361704"
-       d="m 953.28223,408.18197 0,-99.43557 99.43557,0 0,99.43557"
-       id="rect3769"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <path
-       style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:0.56442654;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:0.39361704"
-       d="m 953.28223,953.03656 99.43557,0 0,99.43554 -99.43557,0 z"
-       id="rect3771" />
+    <g
+       id="g3770"
+       transform="matrix(0.74722757,0,0,0.74722757,148.13784,154.06312)">
+      <rect
+         y="495.50485"
+         x="297.16022"
+         height="187.82431"
+         width="187.82431"
+         id="rect2994"
+         style="fill:none;stroke:#000000;stroke-width:0.60857421;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.60857421;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect3764"
+         width="187.82431"
+         height="187.82431"
+         x="526.87122"
+         y="495.50485" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:0.60857421;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect3766"
+         width="187.82431"
+         height="187.82431"
+         x="297.16022"
+         y="725.21582" />
+      <rect
+         y="725.21582"
+         x="526.87122"
+         height="187.82431"
+         width="187.82431"
+         id="rect3768"
+         style="fill:none;stroke:#000000;stroke-width:0.60857421;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
   </g>
   <eggbot
      id="eggbot2990"

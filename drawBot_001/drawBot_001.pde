@@ -8,15 +8,15 @@ SVGReader reader;
 String svg="";
 boolean readerOK = false;
 
-int A3width = 420;
-int A3height  = 297;
+int a3width = 420;
+int a3height  = 297;
 
-int screenWide = 850;
-int screenPad = 50;
-int drawWide = screenWide - (2*screenPad);
+int screenWide = 760;
+//int screenPad = 50;
+//int drawWide = screenWide - (2*screenPad);
 
-int drawHigh = int(float(drawWide)*(float(A3height)/float(A3width)));
-int screenHigh = drawHigh + (2*screenPad);
+//int drawHigh = int(float(drawWide)*(float(A3height)/float(A3width)));
+int screenHigh = 574;
 
 boolean screenOnly = true;
 boolean drawing = false;
@@ -49,7 +49,7 @@ void setup() {
     
   while(!readerOK) {
     if(!svg.equals("")) {
-      reader = new SVGReader(this, svg, drawWide, drawHigh);
+      reader = new SVGReader(this, svg, a3width, a3height);
       readerOK = true;
       //parse the file, store the shapes in a linear array that can be plotted
       reader.parse();
@@ -61,14 +61,11 @@ void setup() {
 }
 
 void draw() {
-  background(200);
-  noStroke();
-  fill(255);
-  rect(screenPad,screenPad,drawWide,drawHigh);
-  
+//  rect(screenPad,screenPad,drawWide,drawHigh);
+  background(226);
   pushMatrix();
-    translate(screenPad,screenPad);
-    scale(reader.scaler);
+    translate(0,0);  //remove these, scaling & translation in the draw method
+    scale(1);
     reader.plotSVG();
   popMatrix();
   
@@ -94,8 +91,15 @@ void keyPressed() {
 //  if (key == 'z') reader.plotter.penDown();
 //  if (key == 'p') reader.plot();
 //  //if (key == 'l') reader.plotLin();
-  if (key == 't') reader.plot.travTo(380,500);
-  if (key == 'g') reader.plot.travTo(380,575);
+//  if (key == 't') reader.plot.travTo(380,500);
+//  if (key == 'g') reader.plot.travTo(380,575);
+//  
+//  //test rectangle
+//  if (key == 'y') reader.plot.travTo(330,475);
+//  if (key == 'u') reader.plot.travTo(430,475);
+//  if (key == 'j') reader.plot.travTo(430,525);
+//  if (key == 'h') reader.plot.travTo(330,525);
+  
   if (key == 's') {
     println("writing to eggbot now");
     drawing = true;
