@@ -1,4 +1,4 @@
-detail = 85;	//20=low, 85=high
+detail = 20;	//20=low, 85=high
 height = 15;
 barLength = 40;
 holeDiam = 8;	//M8 bolt
@@ -10,7 +10,14 @@ shaftPad = 1;
 penArmLength = 30;
 penClampHeight = 15;
 penClampThick = 4;
-penDiam = 11;
+penDiam = 11;
+
+//elbowBearing4 inputs:
+shaftClampWidth = 20-3;      //20mm M3 bolt and 3 for bolting
+shaftZ = 2;                  //z position for the bottom of the shaft
+//shaftDiam
+//shaftClampedLength
+
 
 layer = 0.2;
 
@@ -106,6 +113,7 @@ module wrist1() {
 }
 
 
+
 module elbowBearing3() {
     difference() {
         union() {
