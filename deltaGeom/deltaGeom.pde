@@ -97,6 +97,7 @@ void draw() {
   } 
 }
 
+//fwd kinematic used
 String checkCalc(float al, float be) {
   //predicts x and y from alpha and beta (check of IK calc)
   float xa,ya,xb,yb;  //positions of the elbows
@@ -116,6 +117,7 @@ String checkCalc(float al, float be) {
   return "output: " + newX + " " + newY;
 }
 
+//rev kinematic used
 void revcalcExt(float x, float y) {
   //includes angled extension for pen
   
@@ -167,13 +169,6 @@ void revcalcExt(float x, float y) {
   
 }
 
-void drawArms(){
-  line(offx,offy,x1_2,y1_2);
-  line(x1_2,y1_2,x,y);
-  line(d+offx,offy,x2_2,y2_2);
-  line(x2_2,y2_2,x,y);
-}
-
 void drawArmsExt(){
   //LH arm
   //upper
@@ -195,63 +190,70 @@ void drawArmsExt(){
   line(xprime,yprime,x,y);
 }
 
-void revcalc(float x, float y) {
-  xlength = x - offx;
-  ylength = y - offy;
-  hyp = dist(offx, offy, x, y);
-  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/a2;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) + ang4;
-  ang3 = 90 - ang2;
-  xchange = -a2*sin(radians((ang2)));
-  ychange = -a2*sin(radians((ang3)));
-  x1_2 = x + xchange;
-  y1_2 = y + ychange;
-  
-  alph = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-  if (alph < 0){
-    alph = (90 + alph) * -1;
-  } 
-  else {
-    alph = 270 - alph;
-  }
-
-  xlength = x - (offx + d);
-  ylength = y - offy;
-  hyp = dist((offx + d), offy, x, y);
-  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/a2;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) - ang4;
-  ang3 = 90 - ang2;
-  xchange = a2*sin(radians((ang2)));
-  ychange = -a2*sin(radians((ang3)));
-  x2_2 = x - xchange;
-  y2_2 = y + ychange;
-  
-  beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-}
-
-void xy(float alphaAng, float betaAng) {
-  //forward kinematic calculation - calculate x,y for input alpha and beta
-  //predicts x and y from alpha and beta (check of IK calc)
-  float xa,ya,xb,yb;  //positions of the elbows
-  xa = offx-a1*cos(radians(alphaAng-90));
-  ya = offy+a1*sin(radians(alphaAng-90));
-  xb = offx+d+a1*cos(radians(betaAng-90));
-  yb = offy+a1*sin(radians(betaAng-90));
-  float sep = dist(xa,ya,xb,yb);
-  float ange = acos((sep/2)/a2);
-  float angh = atan2((yb-ya),(xb-xa));
-  float newX = xb-(aeff*cos(ange-angh));
-  float newY = yb+(aeff*sin(ange-angh));
-  outX = newX;
-  outY = newY;
-//  println(alphaAng + " " + betaAng + " " + outX + " " + outY);
-}
+////earlier versions
+//void drawArms(){
+//  line(offx,offy,x1_2,y1_2);
+//  line(x1_2,y1_2,x,y);
+//  line(d+offx,offy,x2_2,y2_2);
+//  line(x2_2,y2_2,x,y);
+//}
+//void revcalc(float x, float y) {
+//  xlength = x - offx;
+//  ylength = y - offy;
+//  hyp = dist(offx, offy, x, y);
+//  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
+//  ang1 = degrees(acos(cosC));
+//  sinA = (a1*sin(radians(ang1)))/a2;
+//  ang4 = degrees(asin(sinA));
+//  ang2 = (degrees(asin(xlength / hyp))) + ang4;
+//  ang3 = 90 - ang2;
+//  xchange = -a2*sin(radians((ang2)));
+//  ychange = -a2*sin(radians((ang3)));
+//  x1_2 = x + xchange;
+//  y1_2 = y + ychange;
+//  
+//  alph = (degrees(atan2((y1_2-offy), (x1_2-offx))));
+//  if (alph < 0){
+//    alph = (90 + alph) * -1;
+//  } 
+//  else {
+//    alph = 270 - alph;
+//  }
+//
+//  xlength = x - (offx + d);
+//  ylength = y - offy;
+//  hyp = dist((offx + d), offy, x, y);
+//  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
+//  ang1 = degrees(acos(cosC));
+//  sinA = (a1*sin(radians(ang1)))/a2;
+//  ang4 = degrees(asin(sinA));
+//  ang2 = (degrees(asin(xlength / hyp))) - ang4;
+//  ang3 = 90 - ang2;
+//  xchange = a2*sin(radians((ang2)));
+//  ychange = -a2*sin(radians((ang3)));
+//  x2_2 = x - xchange;
+//  y2_2 = y + ychange;
+//  
+//  beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
+//}
+//
+//void xy(float alphaAng, float betaAng) {
+//  //forward kinematic calculation - calculate x,y for input alpha and beta
+//  //predicts x and y from alpha and beta (check of IK calc)
+//  float xa,ya,xb,yb;  //positions of the elbows
+//  xa = offx-a1*cos(radians(alphaAng-90));
+//  ya = offy+a1*sin(radians(alphaAng-90));
+//  xb = offx+d+a1*cos(radians(betaAng-90));
+//  yb = offy+a1*sin(radians(betaAng-90));
+//  float sep = dist(xa,ya,xb,yb);
+//  float ange = acos((sep/2)/a2);
+//  float angh = atan2((yb-ya),(xb-xa));
+//  float newX = xb-(aeff*cos(ange-angh));
+//  float newY = yb+(aeff*sin(ange-angh));
+//  outX = newX;
+//  outY = newY;
+////  println(alphaAng + " " + betaAng + " " + outX + " " + outY);
+//}
 
 
 

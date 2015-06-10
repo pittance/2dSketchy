@@ -20,8 +20,64 @@ elbowHeight = 12;
 
 tiny=0.001;
 
-//nutSlot(20,15,.2);
-elbow();
+
+//elbow();
+wrist2(0);
+
+
+module wrist1(clampAngle) {
+    //clampAngle = 180 for pen wrist, 0 for non=pen
+    padWide = 6;
+    padThick = 4;
+    difference() {
+        //bearing base
+        union() {
+            //base strip
+            translate([0,-(bearingDiam+padWide)/2,0]) {
+                cube([55,bearingDiam+padWide,bearingThick+padThick]);
+                //shaft clamp housing
+                translate([55-30,0,0])cube([30,bearingDiam+padWide,(padThick+bearingThick/2)*2]);
+            }
+            //bearing housing
+            cylinder(h=bearingThick+padThick,d=bearingDiam+padWide,$fn=detail);
+            //bearing clamp
+            rotate([0,0,clampAngle])translate([-bearingDiam/2,0,0])cube([bearingDiam,bearingDiam/2+padWide/2+6+2,bearingThick+padThick]);
+        }
+        //bearing
+        translate([0,0,padThick])cylinder(h=bearingThick,d=bearingDiam,$fn=detail);
+        //bolt hole
+        cylinder(h=padThick,d=6.5,$fn=detail);
+        //shaft
+        translate([55-28,0,(padThick+bearingThick/2)])rotate([0,90,0])cylinder(h=28,d=shaftDiam,$fn=detail);
+        //shaft clamp fixings
+        translate([55-7,5.2,(padThick+bearingThick/2)])rotate([0,0,90])nutSlot(15,15,0.5);
+        translate([55-30+7,5.2,(padThick+bearingThick/2)])rotate([0,0,90])nutSlot(15,15,0.5);
+        //bearing clamp bolt
+        translate([-bearingDiam/2,-(bearingDiam/2+padWide/2+3+1),(padThick+bearingThick)/2])rotate([0,90,0])boltHole(3,5.5,12,3);
+        //bearing clamp nut
+        
+        //bearing clamp slot
+        rotate([0,0,clampAngle])translate([-bearingDiam/4+bearingDiam/8,0,0])cube([bearingDiam/4,bearingDiam/2+padWide/2+6+2,bearingThick+padThick]);
+    }
+    
+}
+
+module wrist2() {
+    padWide = 6;
+    difference() {
+        union() {
+            //base wrist joint
+            wrist1(180);
+            //add pen mount and lift
+            translate([17,15,18])rotate([0,90,180])9g_servo();
+            translate([13,bearingDiam/2+padWide/2,0])cube([15,12,6]);
+        }
+        translate([13,bearingDiam/2+padWide/2,0]) {
+            translate([0,6.8,3.8])rotate([0,90,0])cylinder(h=10,d=2,$fn=4);
+        }
+    }
+}
+
 
 module elbow() {
     difference() {
@@ -52,9 +108,9 @@ module elbow() {
 module nutSlot(slotLength,holeLength,holeFrac) {
     //slot and hole for grubscrew and nut for retention of shaft/bearing
     //slot
-    m3NutDiam = 6.24+0.1;    //equivalent diameter (6 faces)
-    m3NutFlats = 5.5+0.1;   //distance across flats
-    m3NutThick = 2.4+0.1;
+    m3NutDiam = 6.24+0.6;    //equivalent diameter (6 faces)
+    m3NutFlats = 5.5+0.6;   //distance across flats
+    m3NutThick = 2.4+0.6;
     
     rotate([0,-90,0])translate([0,0,-m3NutThick/2]) {
         cylinder(h=m3NutThick,d=m3NutDiam,$fn=6);
@@ -70,6 +126,7 @@ module boltHole(headLength, headDiam, shaftLength, shaftDiam) {
 	//head diameter std = 5.5mm
 	//shaft diameter std = 3mm
 	//length defined
+    //e.g.: boltHole(3,5.5,8,3)
 	union() {
 		cylinder(h=shaftLength,d=shaftDiam,$fn=detail);
 		translate([0,0,-headLength]) cylinder(h=headLength,d=headDiam,$fn=detail); //h=2.9
