@@ -22,9 +22,14 @@ tiny=0.001;
 
 
 //elbow();
+
+//wrist assembly
 wrist2(0);
-translate([0,0,17])rotate([0,180,0])wrist1(180);
-penHolder();
+//translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
+translate([20,50,0])rotate([0,0,0])wrist1(180); //render
+//penHolder();  //assembly
+translate([-5,0,0])penHolder();    //render
+
 
 module wrist1(clampAngle) {
     //clampAngle = 180 for pen wrist, 0 for non=pen
@@ -90,18 +95,27 @@ module wrist2() {
 }
 module penHolder() {
     difference() {
-        translate([0,18,0]) {
-            translate([-15/2,20-18,0])cube([15,18,4]);
-            translate([0,20,0])cylinder(h=15,d=18,$fn=25);
+        union() {
+            translate([0,18,0]) {
+                translate([-15/2,20-18,0])cube([15,18,4]);
+                translate([0,20,0])cylinder(h=15,d=18,$fn=25);
+                
+            }
+            translate([2.5,25.2,2])rotate([100,0,0]){
+                cube([5,10,5]);
+                translate([0,10,0])rotate([0,0,-20])cube([5,20,5]);
+            }
         }
         translate([0,18+20,0])cylinder(h=15,d=13,$fn=25);
         translate([-4,24,4])rotate([0,180,0])boltHole(3,5.5,8,3.5);
         translate([4.5,22.5,0])cylinder(h=8,d=2.5,$fn=25);
+        //pen holder bolts
+        translate([0,38,0]) {
+            rotate([90,0,50]) translate([0,7.5,-10])cylinder(h=10,d=2.5,$fn=10);
+            rotate([90,0,-50]) translate([0,7.5,-10])cylinder(h=10,d=2.5,$fn=10);
+        }
     }
-    translate([2.5,25.2,2])rotate([100,0,0]){
-        cube([5,10,5]);
-        translate([0,10,0])rotate([0,0,-20])cube([5,20,5]);
-    }
+    
 }
 
 
