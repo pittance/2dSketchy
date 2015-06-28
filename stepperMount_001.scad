@@ -1,7 +1,7 @@
-//rh: mirror([0,0,0])
-//lh: mirror([1,0,0])  
+//lh: mirror([0,0,0])
+//rh: mirror([1,0,0])  
 
-mirror([0,0,0])rotate([0,180,0]) {
+mirror([1,0,0])rotate([0,180,0]) {
     translate([-294.24,17.4+70,0]){
         linear_extrude(3)import("stepperMount_lh_IS.dxf",layer="bracket");
     }
