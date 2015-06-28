@@ -78,14 +78,14 @@ GT2_5mm_pulley_dia = tooth_spacing (5,0.5715);
 // The following calls the pulley creation part, and passes the pulley diameter and tooth width to that module
 
 //specific drawbot parts
-blockWidth = 12;
-blockLength = 30;
+blockWidth = 15;
+blockLength = 28;
 blockHeight = 6+5;
 m8HeadEqvDiam = 15.5;  //actually 15.01, add some margin to make sure it fits
 
-beltBlockRotate = 60;
-beltBlockWidth = 7+7+3;
-beltBlockLength = 7+3.5;
+beltBlockRotate = 40;
+beltBlockWidth = 7+7+3+3+2; //7mm clamp block width x2, 3mm spacing x2, 2mm centre spacer
+beltBlockLength = 7+3.5;    //7mm deep block + 3.5mm spacing to belt
 beltBlockThick = retainer_ht;
 beltBlockShift = pulley_t_ht+pulley_b_ht+retainer_ht;
 echo(beltBlockShift);
@@ -111,29 +111,60 @@ mirror([0,0,0]){
         }
         //m8 bolt head
         translate([0,0,-4.9])cylinder(h=5,d=m8HeadEqvDiam,$fn=6);
-        //cutout
-        #translate([-75.8864/2,-92.5,-16])linear_extrude(height=11)import("pulleyCutout.dxf",layer="cutout");
+        //cutout drawbot
+        translate([-75.8864/2,-92.5,-16])linear_extrude(height=11)import("pulleyCutout.dxf",layer="cutout");
+        //cutaway flange
+        for (i=[-15:15]) {
+            rotate([0,0,beltBlockRotate+i])translate([-20,T2_5_pulley_dia/2,-10])cube([40,2,10]);
+        }
     }
+    
+    //drawbot parts below:
     difference() {
         //shaft clamping block
         translate([-blockWidth/2,m8HeadEqvDiam/2,-pulley_b_ht+idler_ht])cube([blockWidth,blockLength,blockHeight]);
         //shaft hole
         translate([0,1+m8HeadEqvDiam/2,-3])rotate([-90,0,0])cylinder(h=blockLength,d=6,$fn=30);
-        //shaft clamp bolt
-        translate([16-blockWidth/2,-3+blockLength+m8HeadEqvDiam/2,1.5])rotate([-90,0,90])cylinder(h=16,d=3,$fn=8);
-        //clamping keyway
-        #translate([-1,1+m8HeadEqvDiam/2,-1])cube([2,blockLength,blockHeight/2]);
+        //shaft clamps (nut slot + grub screw)
+        translate([-5,15,-3])rotate([0,0,180])nutSlot(15,15,0.5);
+        translate([-5,29,-3])rotate([0,0,180])nutSlot(15,15,0.5);
+        
     }
     rotate([0,0,beltBlockRotate])translate([-beltBlockWidth/2,75.8864/2-retainer_ht,-beltBlockShift]){
+        //base
         cube([beltBlockWidth,beltBlockLength,beltBlockThick]);
-        translate([0,beltBlockLength-7,retainer_ht])cube([7,7,pulley_t_ht]);
+        
         difference() {
-            translate([beltBlockWidth-7,beltBlockLength-7,retainer_ht])cube([7,7,pulley_t_ht]);
-            #translate([beltBlockWidth-7,beltBlockLength-3.5,retainer_ht+pulley_t_ht/2])rotate([0,90,0])cylinder(h=7,d=2.5,$fn=8);
+            union() {
+                //clamp block
+                translate([0,beltBlockLength-7,retainer_ht])cube([7,7,pulley_t_ht]);
+                //clamp block
+                translate([beltBlockWidth-7,beltBlockLength-7,retainer_ht])cube([7,7,pulley_t_ht]);
+                //centre spacer
+                translate([beltBlockWidth/2-1,beltBlockLength-7,retainer_ht])cube([2,7,pulley_t_ht]);
+            }
+            //clamp cylinder
+            translate([beltBlockWidth-3.5,beltBlockLength-7,retainer_ht+pulley_t_ht/2])rotate([0,90,90])cylinder(h=7,d=2.5,$fn=8);
+            //clamp cylinder
+            translate([3.5,beltBlockLength-7,retainer_ht+pulley_t_ht/2])rotate([0,90,90])cylinder(h=7,d=2.5,$fn=8);
         }
     }
 }
-
+//drawbot nut slot
+module nutSlot(slotLength,holeLength,holeFrac) {
+    //slot and hole for grubscrew and nut for retention of shaft/bearing
+    //slot
+    m3NutDiam = 6.24+0.6;    //equivalent diameter (6 faces)
+    m3NutFlats = 5.5+0.6;   //distance across flats
+    m3NutThick = 2.4+0.6;
+    
+    rotate([0,-90,0])translate([0,0,-m3NutThick/2]) {
+        cylinder(h=m3NutThick,d=m3NutDiam,$fn=6);
+        translate([0,-m3NutFlats/2,0])cube([slotLength,m3NutFlats,m3NutThick]);
+        //hole
+        translate([0,0,-holeFrac*holeLength])cylinder(h=holeLength,d=3.5,$fn=12);
+    }
+}
 // Functions
 
 function tooth_spaceing_curvefit (b,c,d)

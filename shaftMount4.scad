@@ -23,12 +23,14 @@ tiny=0.001;
 
 //elbow();
 
-//wrist assembly
-wrist2(0);
-//translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
-translate([20,50,0])rotate([0,0,0])wrist1(180); //render
-//penHolder();  //assembly
-translate([-5,0,0])penHolder();    //render
+////wrist assembly
+//wrist2(0);
+////translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
+//translate([20,50,0])rotate([0,0,0])wrist1(180); //render
+////penHolder();  //assembly
+//translate([-5,0,0])penHolder();    //render
+
+
 
 
 module wrist1(clampAngle) {
