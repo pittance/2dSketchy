@@ -23,12 +23,14 @@ tiny=0.001;
 
 //elbow();
 
-////wrist assembly
-//wrist2(0);
-////translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
+//
+//translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
 //translate([20,50,0])rotate([0,0,0])wrist1(180); //render
-////penHolder();  //assembly
-//translate([-5,0,0])penHolder();    //render
+
+//servo wrist assembly & pen holder for print
+wrist2(0);
+translate([-5,0,0])penHolder();    //render
+//rotate([25,0,0])translate([0,0,-9])penHolder();    //assembly check
 
 
 
@@ -78,7 +80,7 @@ module wrist2() {
             //base wrist joint
             wrist1(180);
             //servo
-            %translate([25,25,2])rotate([0,0,180])9g_servo(0);
+            %translate([25,25,2])rotate([0,0,180])9g_servo(34);
             //servo mount - near bearing
             translate([8,8,0])cube([5,22,6]);
             //serve mount - the other one
@@ -99,13 +101,17 @@ module penHolder() {
     difference() {
         union() {
             translate([0,18,0]) {
+                //base, for clamping
                 translate([-15/2,20-18,0])cube([15,18,4]);
+                //main for pen holder
                 translate([0,20,0])cylinder(h=15,d=18,$fn=25);
                 
             }
             translate([2.5,25.2,2])rotate([100,0,0]){
+                //base of lift arm
                 cube([5,10,5]);
-                translate([0,10,0])rotate([0,0,-20])cube([5,20,5]);
+                //top of lift arm
+                translate([0,10,0])rotate([0,0,-35])cube([5,22,5]);
             }
         }
         translate([0,18+20,0])cylinder(h=15,d=13,$fn=25);
