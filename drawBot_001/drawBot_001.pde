@@ -1,8 +1,10 @@
 import processing.serial.*;
 import geomerative.*;
 
-//plot device
-//PlotDrawbot plotter;
+//Use Processing 2.1.2(32bit)
+//connect lh motor to motor 1
+//connect rh motor to motor 2
+//servo goes on B1, brown to outside
 
 SVGReader reader;
 String svg="";

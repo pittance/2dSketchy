@@ -20,22 +20,28 @@ elbowHeight = 12;
 
 tiny=0.001;
 
+servoRot = 0;
+
 
 //elbow();
 
-//
-//translate([0,0,17])rotate([0,180,0])wrist1(180);  //assembly
-//translate([20,50,0])rotate([0,0,0])wrist1(180); //render
 
+//WRISTWRISTWRIST
+//ASSEMBLY
+////servo wrist assembly & pen holder for assembly check
+//wrist2(0);                                          //servo wrist
+//translate([0,-30,0])wrist1(180);                    //second wrist
+//penHolder();                                         //assembly check
+
+//PRINT
 //servo wrist assembly & pen holder for print
-wrist2(0);
-translate([-5,0,0])penHolder();    //render
-//rotate([25,0,0])translate([0,0,-9])penHolder();    //assembly check
-
-
+wrist2(0);                                          //servo wrist
+//translate([0,-30,0])wrist1(180);                    //second wrist
+translate([-20,5,0])penHolder();
 
 
 module wrist1(clampAngle) {
+    //this is called by the servo wrist unit, forms the basis of the wrist joint
     //clampAngle = 180 for pen wrist, 0 for non=pen
     padWide = 6;
     padThick = 4;
@@ -74,26 +80,26 @@ module wrist1(clampAngle) {
 }
 
 module wrist2() {
+    //this is the one with the servo, adds extra bits to the base wrist
     padWide = 6;
     difference() {
         union() {
             //base wrist joint
             wrist1(180);
             //servo
-            %translate([25,25,2])rotate([0,0,180])9g_servo(34);
+            %translate([25,25,2])rotate([0,0,180])9g_servo(servoRot);
             //servo mount - near bearing
             translate([8,8,0])cube([5,22,6]);
-            //serve mount - the other one
+            //servo mount - the other one
             translate([37,8,0])cube([5,22,6]);
-            //penHolder mount
-            translate([-15/2,3.3,0])cube([16,12,4]);
+            //pen mount
+            translate([8,8,0])cube([17,10,7]);
         }
-        //flex strip bolt holes
-        translate([4,11.5,4])rotate([0,180,0])boltHole(3,5.5,8,3.5);
-        translate([-4,11.5,4])rotate([0,180,0])boltHole(3,5.5,8,3.5);
+        //penHolder mount    
+        translate([-27+17,14,(3+2+2)/2])rotate([0,90,0])cylinder(h=35,d=2.5,$fn=detail); //35mm m3 bolt
         //servo holes
-        translate([11,25,8])rotate([0,180,0])cylinder(h=10,d=1.5,$fn=5);
-        translate([39,25,8])rotate([0,180,0])cylinder(h=10,d=1.5,$fn=5);
+        translate([11,25,8])rotate([0,180,0])cylinder(h=10,d=2.2,$fn=4);
+        translate([39,25,8])rotate([0,180,0])cylinder(h=10,d=2.2,$fn=4);
         
     }
 }
@@ -101,11 +107,17 @@ module penHolder() {
     difference() {
         union() {
             translate([0,18,0]) {
-                //base, for clamping
-                translate([-15/2,20-18,0])cube([15,18,4]);
+                //base
+                translate([-15/2,-7,0]) {
+                    //base
+                    cube([15,25,4]);
+                    //pivot bearing
+                    translate([0,3,(3+2+2)/2])rotate([0,90,0])cylinder(h=15,d=7,$fn=20);   
+                }
                 //main for pen holder
                 translate([0,20,0])cylinder(h=15,d=18,$fn=25);
-                
+                //'jiggle' adjustment boss (for grubscrew etc.)
+                translate([0,-4,0])cylinder(h=12,d=6,$fn=20);
             }
             translate([2.5,25.2,2])rotate([100,0,0]){
                 //base of lift arm
@@ -114,14 +126,16 @@ module penHolder() {
                 translate([0,10,0])rotate([0,0,-35])cube([5,22,5]);
             }
         }
+        //pen hole
         translate([0,18+20,0])cylinder(h=15,d=13,$fn=25);
-        translate([-4,24,4])rotate([0,180,0])boltHole(3,5.5,8,3.5);
-        translate([4.5,22.5,0])cylinder(h=8,d=2.5,$fn=25);
         //pen holder bolts
         translate([0,38,0]) {
-            rotate([90,0,50]) translate([0,7.5,-10])cylinder(h=10,d=2.5,$fn=10);
-            rotate([90,0,-50]) translate([0,7.5,-10])cylinder(h=10,d=2.5,$fn=10);
+            rotate([90,0,0])translate([0,7.5,-10])cylinder(h=10,d=2.5,$fn=10);
         }
+        //pivot bolt
+        translate([-10,14,(3+2+2)/2])rotate([90,0,90])cylinder(h=25,d=3.5,$fn=10);
+        //pivot bolt 'jiggle' adjustment (optional?)
+        translate([0,14,0])cylinder(h=15,d=2.5,$fn=10);
     }
     
 }
