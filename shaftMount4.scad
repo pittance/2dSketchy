@@ -28,16 +28,16 @@ servoRot = 0;
 
 //WRISTWRISTWRIST
 //ASSEMBLY
-////servo wrist assembly & pen holder for assembly check
-//wrist2(0);                                          //servo wrist
-//translate([0,-30,0])wrist1(180);                    //second wrist
-//penHolder();                                         //assembly check
-
-//PRINT
-//servo wrist assembly & pen holder for print
+//servo wrist assembly & pen holder for assembly check
 wrist2(0);                                          //servo wrist
-//translate([0,-30,0])wrist1(180);                    //second wrist
-translate([-20,5,0])penHolder();
+translate([0,-30,0])wrist1(180);                    //second wrist
+penHolder();                                         //assembly check
+
+////PRINT
+////servo wrist assembly & pen holder for print
+//wrist2(0);                                          //servo wrist
+////translate([0,-30,0])wrist1(180);                    //second wrist
+//translate([-20,5,0])penHolder();
 
 
 module wrist1(clampAngle) {
