@@ -30,18 +30,19 @@ servoRot = 0;
 
 
 //WRISTWRISTWRIST
-//ASSEMBLY
-//servo wrist assembly & pen holder for assembly check
-wrist2(0);                                          //servo wrist
-//translate([0,-30,0])wrist1(180);                    //second wrist
-translate([0,16+21,0])penHolder();                                         //assembly check
-translate([-15/2,13,0])penLiftLower();
 
-////PRINT
-////servo wrist assembly & pen holder for print
-//wrist2(0);                                          //servo wrist
-////translate([0,-30,0])wrist1(180);                    //second wrist
-//translate([-20,5,0])penHolder();
+////ASSEMBLY
+////servo wrist assembly & pen holder for assembly check
+//wrist2(0);                                          
+//translate([0,16+21,0])penHolder();
+//translate([-15/2,13,0])penLiftLower();
+//translate([-15/2,12.5,12.5])penLiftUpper();
+
+//PRINT
+wrist2(0);                                          
+translate([50,30,0])penHolder();
+translate([-20,20,0])penLiftLower();
+rotate([0,90,0])translate([-16,-20,-30])penLiftUpper();
 
 
 module wrist1(clampAngle) {
@@ -91,7 +92,7 @@ module wrist2() {
             //base wrist joint
             wrist1(180);
             //servo
-            %translate([25,21,16])rotate([90,0,-90])9g_servo(servoRot);
+            %translate([25,21,16])rotate([90,0,-90])9g_servo(0,servoRot);
             //servo mount - near bearing
             translate([21,8,0]) {
                 cube([6,25,9]);
@@ -106,7 +107,7 @@ module wrist2() {
         translate([-27+17,16,(3+2+2)/2])rotate([0,90,0])cylinder(h=45,d=2.5,$fn=detail); //35mm m3 bolt
         //servo holes
         translate([19,35,16])rotate([0,90,0])cylinder(h=10,d=2.2,$fn=8);
-        translate([19,7,16])rotate([0,90,0])cylinder(h=16,d=2.2,$fn=8);
+        translate([19,7,16])rotate([0,90,0])cylinder(h=16,d=2.5,$fn=8);
         
     }
 }
@@ -128,6 +129,8 @@ module penHolder() {
         //pivot bolts
         translate([-10,0,3.5+13])rotate([90,0,90])cylinder(h=25,d=2.5,$fn=10);
         translate([-10,0,3.5])rotate([90,0,90])cylinder(h=25,d=2.5,$fn=10);
+        //cutout for upper arm
+        translate([1,-5,11])cube([9,9,9.1]);
     }
 }
 module penLiftLower() {
@@ -143,10 +146,49 @@ module penLiftLower() {
             }
         }
         //bolt holes
+        translate([-1,3,3.5])rotate([0,90,0])cylinder(h=30,d=3.1,$fn=20);
+        translate([-10,21+3,3.5])rotate([0,90,0])cylinder(h=40,d=3.1,$fn=20);
     }
         
 }
-
+module penLiftUpper() {
+    difference() {
+        //arm body
+        union() {
+            //servo mount block
+            hull() {
+                translate([9,3,3.5])rotate([0,90,0])cylinder(h=7,d=7,$fn=20);
+                translate([9,3+17,3.5])rotate([0,90,0])cylinder(h=7,d=7,$fn=20);
+            }
+            //clamp
+//            //end mount
+//            translate([15/2-(15+1+5+5)/2,7,0]) {
+//                //cross block
+//                cube([15+1+5+5,7,7]);
+//                // far end
+//                cube([5,16,7]);
+//                // servo end
+//                translate([21,9,0])cube([5,7,7]);
+//            }
+        }
+        //bolt holes
+        //servo position
+        translate([-1,3,3.5]) {
+            rotate([0,90,0]) {
+                //fixing screw hole
+                cylinder(h=30,d=1.7,$fn=20);
+                //hole for servo spline
+                translate([0,0,10+7-2.5])cylinder(h=3,d=4.7,$fn=20);
+                //access to fix screw
+                translate([0,0,9.99])cylinder(h=2,d=4,$fn=20);
+            }
+        }
+        //pen end
+        
+        translate([-10,17+3,3.5])rotate([0,90,0])cylinder(h=40,d=3.1,$fn=20);
+    }
+        
+}
 module elbow() {
     difference() {
         union() {
@@ -217,26 +259,34 @@ module boltHoleNut(headLength, headDiam, shaftLength, shaftDiam) {
 
 // from http://www.thingiverse.com/TheCase/designs/
 // 9G Servo in OpenSCAD by TheCase is licensed under the Creative Commons - Attribution license.
-module 9g_servo(hornRot){
+module 9g_servo(horn,hornRot){
 	difference(){			
 		union(){
 			color("steelblue") cube([23,12.5,22], center=true);
 			color("steelblue") translate([0,0,5]) cube([32,12,2], center=true);
 			color("steelblue") translate([5.5,0,2.75]) cylinder(r=6, h=25.75, $fn=20, center=true);
 			color("steelblue") translate([-.5,0,2.75]) cylinder(r=1, h=25.75, $fn=20, center=true);
-			color("steelblue") translate([-1,0,2.75]) cube([5,5.6,24.5], center=true);		
-			color("white") translate([5.5,0,3.65]) {
-                cylinder(r=2.35, h=29.25, $fn=20, center=true);
-                rotate([0,0,hornRot]){
-                    hull(){
-                        translate([0,0,13.7925]) {
-                            cylinder(d=7.3,h=1.66,$fn=15,center=true);
-                            translate([(16-4.8/2),0,0])cylinder(d=4.8,h=1.66,$fn=15,center=true);
+			color("steelblue") translate([-1,0,2.75]) cube([5,5.6,24.5], center=true);
+          if (horn==1) {  
+                color("white") translate([5.5,0,3.65]) {
+                    cylinder(r=2.35, h=29.25, $fn=20, center=true);
+                    rotate([0,0,hornRot]){
+                        hull(){
+                            translate([0,0,13.7925]) {
+                                cylinder(d=7.3,h=1.66,$fn=15,center=true);
+                                translate([(16-4.8/2),0,0])cylinder(d=4.8,h=1.66,$fn=15,center=true);
+                            }
                         }
                     }
                 }
+            } else {
+                color("white") translate([5.5,0,3.65]) {
+                    difference() {
+                        cylinder(d=4.7, h=29.25, $fn=20, center=true);
+                        translate([0,0,1])cylinder(d=1, h=29.25, $fn=20, center=true);
+                    }
+                }
             }
-			
 		}
 		translate([10,0,-11]) rotate([0,-30,0]) cube([8,13,4], center=true);
 		for ( hole = [14,-14] ){
