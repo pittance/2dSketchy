@@ -31,18 +31,18 @@ servoRot = 0;
 
 //WRISTWRISTWRIST
 
-////ASSEMBLY
-////servo wrist assembly & pen holder for assembly check
-//wrist2(0);                                          
-//translate([0,16+21,0])penHolder();
-//translate([-15/2,13,0])penLiftLower();
+//ASSEMBLY
+//servo wrist assembly & pen holder for assembly check
+wrist2(0);                                          
+translate([0,16+21,0])penHolder();
+translate([-15/2,13,0])penLiftLower();
 //translate([-15/2,12.5,12.5])penLiftUpper();
 
-//PRINT
-wrist2(0);                                          
-translate([50,30,0])penHolder();
-translate([-20,20,0])penLiftLower();
-rotate([0,90,0])translate([-16,-20,-30])penLiftUpper();
+////PRINT
+//wrist2(0);                                          
+//translate([50,30,0])penHolder();
+//translate([-20,20,0])penLiftLower();
+//rotate([0,90,0])translate([-16,-20,-30])penLiftUpper();
 
 
 module wrist1(clampAngle) {
@@ -93,13 +93,13 @@ module wrist2() {
             wrist1(180);
             //servo
             %translate([25,21,16])rotate([90,0,-90])9g_servo(0,servoRot);
-            //servo mount - near bearing
+            //servo mount - near pen
             translate([21,8,0]) {
                 cube([6,25,9]);
                 translate([0,25,0])cube([6,6,22]);
             }
-            //servo mount - the other one
-            translate([21,3,0])cube([6,6,22]);
+            //servo mount - near bearing
+            translate([21,-3,0])cube([6,12,22]);
             //pen mount
             translate([8,8,0])cube([17,12,7]);
         }
