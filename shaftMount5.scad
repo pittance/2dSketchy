@@ -31,18 +31,18 @@ servoRot = 0;
 
 //WRISTWRISTWRIST
 
-//ASSEMBLY
-//servo wrist assembly & pen holder for assembly check
-wrist2(0);                                          
-translate([0,16+21,0])penHolder();
-translate([-15/2,13,0])penLiftLower();
+////ASSEMBLY
+////servo wrist assembly & pen holder for assembly check
+//wrist2(0);                                          
+//translate([0,16+21,0])penHolder();
+//translate([-15/2,13,0])penLiftLower();
 //translate([-15/2,12.5,12.5])penLiftUpper();
 
-////PRINT
-//wrist2(0);                                          
+//PRINT
+wrist2(0);                                          
 //translate([50,30,0])penHolder();
 //translate([-20,20,0])penLiftLower();
-//rotate([0,90,0])translate([-16,-20,-30])penLiftUpper();
+rotate([0,90,0])translate([-13.6,-20,-30])penLiftUpper();
 
 
 module wrist1(clampAngle) {
@@ -152,35 +152,22 @@ module penLiftLower() {
         
 }
 module penLiftUpper() {
+    //to be glued to the servo horn
     difference() {
         //arm body
         union() {
             //servo mount block
             hull() {
-                translate([9,3,3.5])rotate([0,90,0])cylinder(h=7,d=7,$fn=20);
-                translate([9,3+17,3.5])rotate([0,90,0])cylinder(h=7,d=7,$fn=20);
+                translate([9,3,3.5])rotate([0,90,0])cylinder(h=4.6,d=7,$fn=20);
+                translate([9,3+17,3.5])rotate([0,90,0])cylinder(h=4.6,d=7,$fn=20);
             }
-            //clamp
-//            //end mount
-//            translate([15/2-(15+1+5+5)/2,7,0]) {
-//                //cross block
-//                cube([15+1+5+5,7,7]);
-//                // far end
-//                cube([5,16,7]);
-//                // servo end
-//                translate([21,9,0])cube([5,7,7]);
-//            }
         }
         //bolt holes
         //servo position
         translate([-1,3,3.5]) {
             rotate([0,90,0]) {
-                //fixing screw hole
-                cylinder(h=30,d=1.7,$fn=20);
-                //hole for servo spline
-                translate([0,0,10+7-2.5])cylinder(h=3,d=4.7,$fn=20);
-                //access to fix screw
-                translate([0,0,9.99])cylinder(h=2,d=4,$fn=20);
+                //location hole
+                translate([0,0,9])cylinder(h=6,d=3.1,$fn=20);
             }
         }
         //pen end
