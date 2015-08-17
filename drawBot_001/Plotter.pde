@@ -73,15 +73,15 @@ class Plotter {
     //initialisation of plotter - (0,0) is top left of board
     offx = 281;        //offset of LHS in x
     offy = 32;         //offset of LHS in y
-    a1 = 220;          //arm length - upper
+    a1 = 223;          //arm length - upper
     a2 = 413;          //arm length - lower
-    a3 = 49;           //arm length - pen extension
+    a3 = 40;           //arm length - pen extension
     aeff = sqrt(a2*a2+a3*a3);      //effective lower arm length incl extension
     d = 199;           //separation of shoulders
     
     //initialisation of page - (0,0) is top left of board
-    poffx = 172.5;
-    poffy = 250;
+    poffx = 146;//172.5;
+    poffy = 270;//250;
     pwide = 420;
     phigh = 297;
     
@@ -134,7 +134,7 @@ class Plotter {
     myPort.write(outConsole);
     outConsole = ("SC,5," + penUpVal + "\r");  //17000? SC,4,<servo_max> - sets the minimum value for the servo (1 to 65535)
     myPort.write(outConsole);
-    outConsole = ("SC,11,300\r");  //SC,10,<servo_rate> - sets the rate of change of the servo (when going up/down)
+    outConsole = ("SC,11,500\r");  //SC,10,<servo_rate> - sets the rate of change of the servo (when going up/down)
     myPort.write(outConsole);
     outConsole = ("SC,12,500\r");  //SC,10,<servo_rate> - sets the rate of change of the servo (when going up/down)
     myPort.write(outConsole);
@@ -150,52 +150,88 @@ class Plotter {
     //inverse kinematic calculation - calculate alpha and beta for input x,y
     float a; //internal alpha
     float b; //internal beta    
-    //RH arm (incl extension)
-    //aeff is calculate once in setup
-    xlength = x - (offx + d);
-    ylength = y - offy;
-    hyp = dist((offx + d), offy, x, y);
-    cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
-    ang1 = degrees(acos(cosC));
-    sinA = (a1*sin(radians(ang1)))/aeff;
-    ang4 = degrees(asin(sinA));
-    ang2 = (degrees(asin(xlength / hyp))) - ang4;
-    ang3 = 90 - ang2;
-    xchange = aeff*sin(radians((ang2)));
-    ychange = -aeff*sin(radians((ang3)));
-    x2_2 = x - xchange;
-    y2_2 = y + ychange;
-    b = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-    phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
-    xo=cos(radians(phi))*a3;
-    yo=sin(radians(phi))*a3;
+    //aeff is calculated once in setup
     
-    xprime = x-xo;
-    yprime = y-yo;
+    //includes angled extension for pen at 90 from LH arm (below wrist)
+    //finding alpha
+    float hypp = sqrt(((x-offx)*(x-offx))+((y-offy)*(y-offy)));
+    float ang5 = degrees(acos((hypp*hypp+a1*a1-aeff*aeff)/(2*hypp*a1)));
+    float ang6 = degrees(atan2(y-offy,x-offx));
+    a = 180-ang5-ang6+90;
     
-    xlength = xprime - offx;
-    ylength = yprime - offy;
-    hyp = dist(offx, offy, xprime, yprime);
-    cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-    ang1 = degrees(acos(cosC));
-    sinA = (a1*sin(radians(ang1)))/a2;
-    ang4 = degrees(asin(sinA));
-    ang2 = (degrees(asin(xlength / hyp))) + ang4;
-    ang3 = 90 - ang2;
-    xchange = -a2*sin(radians((ang2)));
-    ychange = -a2*sin(radians((ang3)));
-    x1_2 = xprime + xchange;
-    y1_2 = yprime + ychange;
+    //from alpha find the wrist position
+    float ang4 = degrees(acos((a2*a2+aeff*aeff-a3*a3)/(2*a2*aeff)));
+    float ye = a1*sin(radians(a-90))+offy;
+    float xe = offx-a1*cos(radians(a-90));
+    float ang3 = degrees(acos((x-xe)/aeff));
+    float ang8 = 180 - ang4 - 90;
+    float ang11 = ang3 + ang8 - 90;
+    //wrist found
+    float xw = x + a3*sin(radians(ang11));
+    float yw = y - a3*cos(radians(ang11));
     
-    a = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-    if (a < 0){
-      a = (90 + a) * -1;
-    } 
-    else {
-      a = 270 - a;
-    }
+    xprime = xw;
+    yprime = yw;
+    x1_2 = xe;
+    y1_2 = ye;
+    
+    // RH Arm, get beta from wrist
+    float hypw = dist(offx+d,offy,xw,yw);
+    float ang2 = degrees(acos((offx+d-xw)/hypw));
+    
+    float cosAng1 = (sq(a1)+sq(hypw)-sq(a2))/(2*a1*hypw);
+    float ang1 = degrees(acos(cosAng1));
+   
+    b = 270-ang2-ang1;
+    x2_2 = offx+d+a1*cos(radians(b-90));
+    y2_2 = offy+a1*sin(radians(b-90));
+    
     float[] out =  {a,b};
     return out;
+    
+//    xlength = x - (offx + d);
+//    ylength = y - offy;
+//    hyp = dist((offx + d), offy, x, y);
+//    cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
+//    ang1 = degrees(acos(cosC));
+//    sinA = (a1*sin(radians(ang1)))/aeff;
+//    ang4 = degrees(asin(sinA));
+//    ang2 = (degrees(asin(xlength / hyp))) - ang4;
+//    ang3 = 90 - ang2;
+//    xchange = aeff*sin(radians((ang2)));
+//    ychange = -aeff*sin(radians((ang3)));
+//    x2_2 = x - xchange;
+//    y2_2 = y + ychange;
+//    b = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
+//    phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
+//    xo=cos(radians(phi))*a3;
+//    yo=sin(radians(phi))*a3;
+//    
+//    xprime = x-xo;
+//    yprime = y-yo;
+//    
+//    xlength = xprime - offx;
+//    ylength = yprime - offy;
+//    hyp = dist(offx, offy, xprime, yprime);
+//    cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
+//    ang1 = degrees(acos(cosC));
+//    sinA = (a1*sin(radians(ang1)))/a2;
+//    ang4 = degrees(asin(sinA));
+//    ang2 = (degrees(asin(xlength / hyp))) + ang4;
+//    ang3 = 90 - ang2;
+//    xchange = -a2*sin(radians((ang2)));
+//    ychange = -a2*sin(radians((ang3)));
+//    x1_2 = xprime + xchange;
+//    y1_2 = yprime + ychange;
+//    
+//    a = (degrees(atan2((y1_2-offy), (x1_2-offx))));
+//    if (a < 0){
+//      a = (90 + a) * -1;
+//    } 
+//    else {
+//      a = 270 - a;
+//    }
+    
   }
   
     float[] alphabeta2(float x, float y) {

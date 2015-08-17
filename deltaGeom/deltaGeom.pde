@@ -54,8 +54,7 @@ void draw() {
     //condition for the end point within the range of the arms
     x = mouseX;
     y = mouseY;
-//    revcalcExt(x, y);
-    revcalcExt2(x, y);
+    revcalcExt(x, y);
     fill(0);
     text("alph: " + alph,offx,offy);
     text("beta: " + beta,offx+d,offy);
@@ -64,6 +63,7 @@ void draw() {
     noFill();
     stroke(0);
     drawArmsExt();
+
   } 
 }
 
@@ -87,61 +87,10 @@ String checkCalc(float al, float be) {
   return "output: " + newX + " " + newY;
 }
 
+
+
 //rev kinematic used
 void revcalcExt(float x, float y) {
-  //includes angled extension for pen
-  
-  //RH arm (incl extension)
-  //aeff is calculate once in setup
-  xlength = x - (offx + d);
-  ylength = y - offy;
-  hyp = dist((offx + d), offy, x, y);
-  cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/aeff;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) - ang4;
-  ang3 = 90 - ang2;
-  xchange = aeff*sin(radians((ang2)));
-  ychange = -aeff*sin(radians((ang3)));
-  x2_2 = x - xchange;
-  y2_2 = y + ychange;
-  beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-  phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
-  xo=cos(radians(phi))*a3;
-  yo=sin(radians(phi))*a3;
-  
-  xprime = x-xo;
-  yprime = y-yo;
-  
-  xlength = xprime - offx;
-  ylength = yprime - offy;
-  hyp = dist(offx, offy, xprime, yprime);
-  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/a2;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) + ang4;
-  ang3 = 90 - ang2;
-  xchange = -a2*sin(radians((ang2)));
-  ychange = -a2*sin(radians((ang3)));
-  x1_2 = xprime + xchange;
-  y1_2 = yprime + ychange;
-  
-  alph = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-  if (alph < 0){
-    alph = (90 + alph) * -1;
-  } 
-  else {
-    alph = 270 - alph;
-  }
-
-  
-}
-
-
-//rev kinematic used
-void revcalcExt2(float x, float y) {
   //includes angled extension for pen at 90 from LH arm (below wrist)
   float hypp = sqrt(((x-offx)*(x-offx))+((y-offy)*(y-offy)));
   float ang5 = degrees(acos((hypp*hypp+a1*a1-aeff*aeff)/(2*hypp*a1)));
@@ -160,13 +109,17 @@ void revcalcExt2(float x, float y) {
   x1_2 = xe;
   y1_2 = ye;
   
-  //this bit isn't right
+  // RH Arm
   float hypw = dist(offx+d,offy,xw,yw);
-  float ang1 = degrees(acos((a1*a1+hypw*hypw-a2*a2)/(2*a1*hypw)));
-  float ang2 = degrees(acos((yw-offy)/hypw));
-  beta = 270-(ang2+ang1);
+  float ang2 = degrees(acos((offx+d-xw)/hypw));
+  
+  float cosAng1 = (sq(a1)+sq(hypw)-sq(a2))/(2*a1*hypw);
+  float ang1 = degrees(acos(cosAng1));
+ 
+  beta = 270-ang2-ang1;
   x2_2 = offx+d+a1*cos(radians(beta-90));
   y2_2 = offy+a1*sin(radians(beta-90));
+  
   
 }
 
