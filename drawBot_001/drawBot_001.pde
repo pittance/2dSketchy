@@ -89,8 +89,8 @@ void fileSelected(File selection) {
 
 void keyPressed() {
   if (key == 'x') reader.plot.shutDown();
-//  if (key == 'a') reader.plotter.penUp();
-//  if (key == 'z') reader.plotter.penDown();
+  if (key == 'a') reader.plot.penUp();
+  if (key == 'z') reader.plot.penDown();
 //  if (key == 'p') reader.plot();
 //  //if (key == 'l') reader.plotLin();
 //  if (key == 't') reader.plot.travTo(380,500);

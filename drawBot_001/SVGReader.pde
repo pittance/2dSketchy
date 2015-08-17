@@ -173,11 +173,13 @@ class SVGReader {
         plot.travTo(xformX(pts[0].x), xformY(pts[0].y),plot.maxStepsPerSecond);
       }
       //pen down
+      plot.penDown();
       for(int j=0; j<pts.length; j++) {
         //loop through points
         plot.drawTo(xformX(pts[j].x), xformY(pts[j].y));
       }
       //pen up
+      plot.penUp();
     }
   }
   
@@ -209,7 +211,7 @@ class SVGReader {
   void plotLinNext() {
     if (plotStep == 0) {
       println("start writing to eggbot");
-//      plot.penUp();
+      plot.penUp();
     }
     //println("step: " + plotStep);
     if (plotStep > lin.length-1) {
