@@ -33,26 +33,6 @@ void setup() {
   a3 = 25;           //arm length - pen extension
   aeff = a2+a3;      //effective lower arm length incl extension
   d = 200;           //separation of shoulders
-//  float degPerStep = 360f/(200*8*(40f/9f));
-//  int stepFrom = 100;
-//  int stepTo = 110;
-//  int steps = int((stepTo-stepFrom)/degPerStep);
-//  println("degrees per step: " + degPerStep);
-//  println("stepping from " + stepFrom + " to " + stepTo);
-//  println("for a total number of steps of " + steps);
-//  xPoints = new float[steps*steps];
-//  yPoints = new float[steps*steps];
-//  int count = 0;
-//  for (int i=stepFrom;i<steps;i++) {
-//    for (int j=stepFrom;j<steps;j++) {
-//      xy(i*degPerStep,j*degPerStep);
-//      xPoints[count] = outX;
-//      yPoints[count] = outY;
-//      count++;
-//    }
-//    println(count);
-//  }
-//  noLoop();
 }
 
 void draw() {
@@ -66,26 +46,16 @@ void draw() {
   fill(255,50);
   ellipse(offx,offy,2*(a2-a1),2*(a2-a1));
   ellipse(offx+d,offy,2*(a2-a1),2*(a2-a1));
-//  println("drawing points");
-  //draw machine points
-//  int pointsToDraw = xPoints.length;
-//  loadPixels();
+
   fill(0);
   noStroke();
-//  for (int i=0;i<pointsToDraw;i++) {
-//    ellipse(xPoints[i],yPoints[i],1,1);
-//    println(xPoints[i]+" "+yPoints[i]);
-////    pixels[int(yPoints[i])*width+int(xPoints[i])] = #000000;
-//    if (i%20000==0) println(i);
-//  }
-//  updatePixels();
-  
-  
+
   if (dist(offx,offy,mouseX,mouseY) < (a1+a2) && dist((offx+d),offy,mouseX,mouseY) < (a1+a2) && mouseY > offy){
     //condition for the end point within the range of the arms
     x = mouseX;
     y = mouseY;
-    revcalcExt(x, y);
+//    revcalcExt(x, y);
+    revcalcExt2(x, y);
     fill(0);
     text("alph: " + alph,offx,offy);
     text("beta: " + beta,offx+d,offy);
@@ -190,51 +160,13 @@ void revcalcExt2(float x, float y) {
   x1_2 = xe;
   y1_2 = ye;
   
-  //RH arm (incl extension)
-  //aeff is calculate once in setup
-  xlength = x - (offx + d);
-  ylength = y - offy;
-  hyp = dist((offx + d), offy, x, y);
-  cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/aeff;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) - ang4;
-  ang3 = 90 - ang2;
-  xchange = aeff*sin(radians((ang2)));
-  ychange = -aeff*sin(radians((ang3)));
-  x2_2 = x - xchange;
-  y2_2 = y + ychange;
-  beta = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-  phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
-  xo=cos(radians(phi))*a3;
-  yo=sin(radians(phi))*a3;
-  
-  xprime = x-xo;
-  yprime = y-yo;
-  
-  xlength = xprime - offx;
-  ylength = yprime - offy;
-  hyp = dist(offx, offy, xprime, yprime);
-  cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-  ang1 = degrees(acos(cosC));
-  sinA = (a1*sin(radians(ang1)))/a2;
-  ang4 = degrees(asin(sinA));
-  ang2 = (degrees(asin(xlength / hyp))) + ang4;
-  ang3 = 90 - ang2;
-  xchange = -a2*sin(radians((ang2)));
-  ychange = -a2*sin(radians((ang3)));
-  x1_2 = xprime + xchange;
-  y1_2 = yprime + ychange;
-  
-  alph = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-  if (alph < 0){
-    alph = (90 + alph) * -1;
-  } 
-  else {
-    alph = 270 - alph;
-  }
-
+  //this bit isn't right
+  float hypw = dist(offx+d,offy,xw,yw);
+  float ang1 = degrees(acos((a1*a1+hypw*hypw-a2*a2)/(2*a1*hypw)));
+  float ang2 = degrees(acos((yw-offy)/hypw));
+  beta = 270-(ang2+ang1);
+  x2_2 = offx+d+a1*cos(radians(beta-90));
+  y2_2 = offy+a1*sin(radians(beta-90));
   
 }
 
