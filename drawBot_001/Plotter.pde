@@ -25,7 +25,7 @@ class Plotter {
   float betaT;
   
   float anglePerStep;     //degrees per step, set in constructor
-  float gearRatio = 4.4444444;
+  float gearRatio = 4.5;//90/20;//4.4444444;
   float stepsPerRev = 200;
   float microStep = 16;
   
@@ -39,7 +39,7 @@ class Plotter {
   float xCurrent,yCurrent;
   
   // pen settings
-  int penPause = 250;
+  int penPause = 350;
   int penUpVal = 21000;  //18000
   int penDownVal = 16000;  //22000
   String outConsole;
@@ -47,7 +47,7 @@ class Plotter {
   //speed settings
   int maxStepsPerSecond = 1200;
   int stepsPerSecond = 400;
-  float maxDrawDist = 0.5;
+  float maxDrawDist = 10;
   
 //    Implement speed control by rotational speed at shoulder, not at pen
 //    (max stepper speed is the only thing we care about and pen speed
@@ -71,17 +71,17 @@ class Plotter {
     println("set at " + anglePerStep + " degrees per step");
     
     //initialisation of plotter - (0,0) is top left of board
-    offx = 281;        //offset of LHS in x
+    offx = 282;        //offset of LHS in x
     offy = 32;         //offset of LHS in y
     a1 = 223;          //arm length - upper
-    a2 = 413;          //arm length - lower
-    a3 = 40;           //arm length - pen extension
-    aeff = sqrt(a2*a2+a3*a3);      //effective lower arm length incl extension
+    a2 = 411.5;          //arm length - lower
+    a3 = 47;           //arm length - pen extension
+    aeff = sqrt(sq(a2)+sq(a3));      //effective lower arm length incl extension
     d = 199;           //separation of shoulders
     
     //initialisation of page - (0,0) is top left of board
-    poffx = 146;//172.5;
-    poffy = 270;//250;
+    poffx = 142;//172.5;
+    poffy = 267;//250;
     pwide = 420;
     phigh = 297;
     
@@ -96,6 +96,8 @@ class Plotter {
     float[] temp = alphabeta(xHome,yHome);
     alph = temp[0];
     beta = temp[1];
+    alph = 148.147;
+    beta = 137.178;
     println("Home angles: " + alph + "/" + beta);
     
     //assume start position is a whole step + exact
@@ -141,9 +143,11 @@ class Plotter {
   }
   
   void initialise() {
-    float[] temp = alphabeta(xHome,yHome);
-    alph = temp[0];
-    beta = temp[1];
+//    float[] temp = alphabeta(xHome,yHome);
+//    alph = temp[0];
+//    beta = temp[1];
+    alph = 148.147;
+    beta = 137.178;
   }
   
   float[] alphabeta(float x, float y) {
@@ -154,8 +158,9 @@ class Plotter {
     
     //includes angled extension for pen at 90 from LH arm (below wrist)
     //finding alpha
-    float hypp = sqrt(((x-offx)*(x-offx))+((y-offy)*(y-offy)));
-    float ang5 = degrees(acos((hypp*hypp+a1*a1-aeff*aeff)/(2*hypp*a1)));
+    float hypp = dist(offx,offy,x,y);
+    float cosang5 = (sq(hypp)+sq(a1)-sq(aeff))/(2*hypp*a1);
+    float ang5 = degrees(acos(cosang5));
     float ang6 = degrees(atan2(y-offy,x-offx));
     a = 180-ang5-ang6+90;
     

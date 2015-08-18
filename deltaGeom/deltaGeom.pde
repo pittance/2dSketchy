@@ -14,11 +14,15 @@ float ang1, ang2, ang3, ang4;
 float xlength, ylength, hyp;
 float cosC, sinA;
 
+float revXe1, revXe2, revYe1, revYe2;  //reverse calculated (from alph/beta) elbows
+
 PFont p;
 
 float outX,outY;
 float[] xPoints;
 float[] yPoints;
+
+boolean mouser = true;
 
 void setup() {
   size(760, 574);
@@ -26,13 +30,13 @@ void setup() {
   p = createFont("arial",10);
   textFont(p,10);
   //initialisation
-  offx = 280;   //offset of LHS in x
-  offy = 30;         //offset of LHS in y
-  a1 = 217;          //arm length - upper
-  a2 = 395;          //arm length - lower
-  a3 = 25;           //arm length - pen extension
-  aeff = a2+a3;      //effective lower arm length incl extension
-  d = 200;           //separation of shoulders
+  offx = 282;   //offset of LHS in x
+  offy = 32;         //offset of LHS in y
+  a1 = 223;          //arm length - upper
+  a2 = 411.5;          //arm length - lower
+  a3 = 47;           //arm length - pen extension
+  aeff = sqrt(sq(a2)+sq(a3));      //effective lower arm length incl extension
+  d = 199;           //separation of shoulders
 }
 
 void draw() {
@@ -52,8 +56,14 @@ void draw() {
 
   if (dist(offx,offy,mouseX,mouseY) < (a1+a2) && dist((offx+d),offy,mouseX,mouseY) < (a1+a2) && mouseY > offy){
     //condition for the end point within the range of the arms
-    x = mouseX;
-    y = mouseY;
+    if (mouser) {
+      x = mouseX;
+      y = mouseY;
+    } else {
+      x = 434;
+      y = 373;
+    }
+    
     revcalcExt(x, y);
     fill(0);
     text("alph: " + alph,offx,offy);
@@ -63,6 +73,17 @@ void draw() {
     noFill();
     stroke(0);
     drawArmsExt();
+    
+    fill(50);
+    ellipse(revXe1,revYe1,4,4);
+    text(dist(offx,offy,revXe1,revYe1),revXe1,revYe1-10);
+    ellipse(revXe2,revYe2,4,4);
+    text(dist(offx+d,offy,revXe2,revYe2),revXe2,revYe2-10);
+    
+    textAlign(RIGHT);
+    text(dist(revXe1,revYe1,xprime,yprime),xprime-10,yprime+10);
+    textAlign(LEFT);
+    text(dist(revXe2,revYe2,xprime,yprime),xprime+10,yprime+10);
 
   } 
 }
@@ -75,6 +96,11 @@ String checkCalc(float al, float be) {
   ya = offy+a1*sin(radians(alph-90));
   xb = offx+d+a1*cos(radians(beta-90));
   yb = offy+a1*sin(radians(beta-90));
+  revXe1 = xa;
+  revYe1 = ya;
+  revXe2 = xb;
+  revYe2 = yb;
+  
 //  println(xa+" "+ya+" "+xb+" "+yb);
   float sep = dist(xa,ya,xb,yb);
 //  println(sep);
@@ -92,9 +118,13 @@ String checkCalc(float al, float be) {
 //rev kinematic used
 void revcalcExt(float x, float y) {
   //includes angled extension for pen at 90 from LH arm (below wrist)
-  float hypp = sqrt(((x-offx)*(x-offx))+((y-offy)*(y-offy)));
-  float ang5 = degrees(acos((hypp*hypp+a1*a1-aeff*aeff)/(2*hypp*a1)));
-  float ang6 = degrees(atan2(y-offy,x-offx));
+  float hypp = dist(offx,offy,x,y);  //ccccccccccc
+  text("hypp: "+hypp,200,190);
+  float cosang5 = (sq(hypp)+sq(a1)-sq(aeff))/(2*hypp*a1);
+  float ang5 = degrees(acos(cosang5));  //ccccccc
+  text("ang5: "+ang5,200,200);
+  float ang6 = degrees(atan2((y-offy),(x-offx)));
+  text("ang6: "+ang6,200,210);
   alph = 180-ang5-ang6+90;
   float ang4 = degrees(acos((a2*a2+aeff*aeff-a3*a3)/(2*a2*aeff)));
   float ye = a1*sin(radians(alph-90))+offy;
@@ -145,6 +175,12 @@ void drawArmsExt(){
   //ext
   stroke(0);
   line(xprime,yprime,x,y);
+}
+
+void keyPressed() {
+  if (key == 'm') {
+    mouser = !mouser;
+  }
 }
 
 ////earlier versions
