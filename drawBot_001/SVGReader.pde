@@ -60,6 +60,7 @@ class SVGReader {
   void parse() {
     //initialise array of shapes
     lin = new RShape[0];
+    println("parsing SVG...");
     parseSVG(rs);
     println("lin contains: " + lin.length);
     printLin();
@@ -71,7 +72,7 @@ class SVGReader {
       RPoint[] pts = lin[i].getPoints();
       for(int j=0; j<pts.length; j++) {
         //loop through points
-        println(i+ ": "+scaler*pts[j].x+","+scaler*pts[j].y);
+//        println(i+ ": "+scaler*pts[j].x+","+scaler*pts[j].y);
       }
     }
   }
@@ -80,10 +81,12 @@ class SVGReader {
     //recursively traverse through the children of the shape
     
     //find number of children
-    int childs = shp.children.length;  
+    int childs = shp.children.length; 
+   println("children: " + childs); 
     
     //loop through children
     for (int i=0;i<childs;i++) {
+      println("child " + i + " of " + childs);
       if (shp.children[i].children == null) {
         //child has no children, found a shape, plot it
         RPoint[] pts = shp.children[i].getPoints();
@@ -189,13 +192,13 @@ class SVGReader {
       //traverse to first point
       plot.penUp();
       plot.travTo(xformX(pts[0].x),xformY(pts[0].y),plot.maxStepsPerSecond);
-      println("traverse move - x: " + xformX(pts[0].x) + " y: " + xformY(pts[0].y));
+//      println("traverse move - x: " + xformX(pts[0].x) + " y: " + xformY(pts[0].y));
       plot.penDown();
 
       for(int j=1; j<pts.length; j++) {
         //loop through points
         plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));
-        println("draw move - x: " + xformX(pts[j].x) + " y: " + xformY(pts[j].y));
+//        println("draw move - x: " + xformX(pts[j].x) + " y: " + xformY(pts[j].y));
       }
     }
   }

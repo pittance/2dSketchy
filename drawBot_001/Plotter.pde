@@ -47,7 +47,7 @@ class Plotter {
   //speed settings
   int maxStepsPerSecond = 1200;
   int stepsPerSecond = 400;
-  float maxDrawDist = 10;
+  float maxDrawDist = 20;
   
 //    Implement speed control by rotational speed at shoulder, not at pen
 //    (max stepper speed is the only thing we care about and pen speed
@@ -87,7 +87,7 @@ class Plotter {
     
     //TEMPORARY - TO BE REPLACED WITH HOMING
     //set home position
-    xHome = 380;
+    xHome = 382;
     yHome = 575;
     
     xCurrent = xHome;
