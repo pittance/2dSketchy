@@ -386,12 +386,17 @@ class Plotter {
       println("reset current:  alph/beta:  " +alph+"/"+beta);
       println("               alphT/betaA: " +alphT+"/"+betaT);
     }
-    alph = alphT;
-    beta = betaT;
+    //was this causing the loss of accuracy?
+//    alph = alphT;
+//    beta = betaT;
+    alph = appAlph;
+    beta = appBeta;
     if(verbose) println("check:          alph/beta:  " +alph+"/"+beta);
     
-    xCurrent = x;
-    yCurrent = y;
+    //back calculate current x and y from approximate angles
+    float[] currentXYs = xy(alph,beta);
+    xCurrent = currentXYs[0];
+    yCurrent = currentXYs[1];
   }
   
   void penDown() {
