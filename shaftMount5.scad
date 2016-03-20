@@ -77,7 +77,7 @@ module wrist1(clampAngle) {
         translate([55-7,5.2,(clampThick+bearingThick/2)])rotate([0,0,90])nutSlot(15,15,0.5);
         translate([55-30+7,5.2,(clampThick+bearingThick/2)])rotate([0,0,90])nutSlot(15,15,0.5);
         //bearing clamp bolt
-        translate([-bearingDiam/2,-(bearingDiam/2+padWide/2+3+1),(padThick+bearingThick)/2])rotate([0,90,0])boltHole(3,5.5,12,3);
+        #rotate([0,0,clampAngle+180])translate([-bearingDiam/2,-(bearingDiam/2+padWide/2+3+1),(padThick+bearingThick)/2])rotate([0,90,0])boltHole(3,5.5,12,3);
         //bearing clamp nut
         
         //bearing clamp slot
