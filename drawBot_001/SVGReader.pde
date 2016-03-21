@@ -197,7 +197,8 @@ class SVGReader {
 
       for(int j=1; j<pts.length; j++) {
         //loop through points
-        plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));
+//        plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));
+        plot.travTo(xformX(pts[j].x),xformY(pts[j].y),plot.maxStepsPerSecond);
 //        println("draw move - x: " + xformX(pts[j].x) + " y: " + xformY(pts[j].y));
       }
     }

@@ -29,8 +29,8 @@ class Plotter {
   float stepsPerRev = 200;
   float microStep = 16;
   
-  int rev1 = -1;
-  int rev2 = 1;
+  int rev1 = -1;  
+  int rev2 = 1;   
   
   int aSteps=0;           //step counter
   int bSteps=0;           //step counter
@@ -40,8 +40,8 @@ class Plotter {
   
   // pen settings
   int penPause = 350;
-  int penUpVal = 21000;  //18000
-  int penDownVal = 16000;  //22000
+  int penUpVal = 21000;  //21000
+  int penDownVal = 16000;  //16000
   String outConsole;
   
   //speed settings
@@ -93,18 +93,7 @@ class Plotter {
     xCurrent = xHome;
     yCurrent = yHome;
     
-    float[] temp = alphabeta(xHome,yHome);
-    alph = temp[0];
-    beta = temp[1];
-    alph = 148.147;
-    beta = 137.178;
-    println("Home angles: " + alph + "/" + beta);
     
-    //assume start position is a whole step + exact
-    appAlph = alph;
-    appBeta = beta;
-    aSteps = 0;
-    bSteps = 0;
    
     
 //      
@@ -143,11 +132,19 @@ class Plotter {
   }
   
   void initialise() {
-//    float[] temp = alphabeta(xHome,yHome);
-//    alph = temp[0];
-//    beta = temp[1];
-    alph = 148.147;
-    beta = 137.178;
+    float[] temp = alphabeta(xHome,yHome);
+//    float[] temp = alphabeta2(xHome,yHome);
+    alph = temp[0];
+    beta = temp[1];
+//    alph = 148.147;
+//    beta = 137.178;
+    println("Home angles: " + alph + "/" + beta);
+    
+    //assume start position is a whole step + exact
+    appAlph = alph;
+    appBeta = beta;
+    aSteps = 0;
+    bSteps = 0;
   }
   
   float[] alphabeta(float x, float y) {
@@ -194,104 +191,9 @@ class Plotter {
     float[] out =  {a,b};
     return out;
     
-//    xlength = x - (offx + d);
-//    ylength = y - offy;
-//    hyp = dist((offx + d), offy, x, y);
-//    cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
-//    ang1 = degrees(acos(cosC));
-//    sinA = (a1*sin(radians(ang1)))/aeff;
-//    ang4 = degrees(asin(sinA));
-//    ang2 = (degrees(asin(xlength / hyp))) - ang4;
-//    ang3 = 90 - ang2;
-//    xchange = aeff*sin(radians((ang2)));
-//    ychange = -aeff*sin(radians((ang3)));
-//    x2_2 = x - xchange;
-//    y2_2 = y + ychange;
-//    b = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-//    phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
-//    xo=cos(radians(phi))*a3;
-//    yo=sin(radians(phi))*a3;
-//    
-//    xprime = x-xo;
-//    yprime = y-yo;
-//    
-//    xlength = xprime - offx;
-//    ylength = yprime - offy;
-//    hyp = dist(offx, offy, xprime, yprime);
-//    cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-//    ang1 = degrees(acos(cosC));
-//    sinA = (a1*sin(radians(ang1)))/a2;
-//    ang4 = degrees(asin(sinA));
-//    ang2 = (degrees(asin(xlength / hyp))) + ang4;
-//    ang3 = 90 - ang2;
-//    xchange = -a2*sin(radians((ang2)));
-//    ychange = -a2*sin(radians((ang3)));
-//    x1_2 = xprime + xchange;
-//    y1_2 = yprime + ychange;
-//    
-//    a = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-//    if (a < 0){
-//      a = (90 + a) * -1;
-//    } 
-//    else {
-//      a = 270 - a;
-//    }
-    
   }
   
-    float[] alphabeta2(float x, float y) {
-    //inverse kinematic calculation - calculate alpha and beta for input x,y
-    float a; //internal alpha
-    float b; //internal beta    
-    //LH arm (extension)
-    //aeff is calculate once in setup
-    
-    //RH arm (no extension)
-    xlength = x - (offx + d);
-    ylength = y - offy;
-    hyp = dist((offx + d), offy, x, y);
-    cosC = (sq(a1)+sq(hyp)-sq(aeff))/(2*a1*hyp);
-    ang1 = degrees(acos(cosC));
-    sinA = (a1*sin(radians(ang1)))/aeff;
-    ang4 = degrees(asin(sinA));
-    ang2 = (degrees(asin(xlength / hyp))) - ang4;
-    ang3 = 90 - ang2;
-    xchange = aeff*sin(radians((ang2)));
-    ychange = -aeff*sin(radians((ang3)));
-    x2_2 = x - xchange;
-    y2_2 = y + ychange;
-    b = 90 + (degrees(atan2((y2_2-offy), (x2_2-(d+offx)))));
-    phi = 180-(degrees(atan2((y-y2_2),(x2_2-x))));
-    xo=cos(radians(phi))*a3;
-    yo=sin(radians(phi))*a3;
-    
-    xprime = x-xo;
-    yprime = y-yo;
-    
-    xlength = xprime - offx;
-    ylength = yprime - offy;
-    hyp = dist(offx, offy, xprime, yprime);
-    cosC = (sq(a1)+sq(hyp)-sq(a2))/(2*a1*hyp);
-    ang1 = degrees(acos(cosC));
-    sinA = (a1*sin(radians(ang1)))/a2;
-    ang4 = degrees(asin(sinA));
-    ang2 = (degrees(asin(xlength / hyp))) + ang4;
-    ang3 = 90 - ang2;
-    xchange = -a2*sin(radians((ang2)));
-    ychange = -a2*sin(radians((ang3)));
-    x1_2 = xprime + xchange;
-    y1_2 = yprime + ychange;
-    
-    a = (degrees(atan2((y1_2-offy), (x1_2-offx))));
-    if (a < 0){
-      a = (90 + a) * -1;
-    } 
-    else {
-      a = 270 - a;
-    }
-    float[] out =  {a,b};
-    return out;
-  }
+
 
   float[] xy(float alphaAng, float betaAng) {
     //forward kinematic calculation - calculate x,y for input alpha and beta
@@ -347,12 +249,12 @@ class Plotter {
       println("calculated angles - current: " + alph + "/" + beta + " approx: " + appAlph + "/" + appBeta + " target: " + alphT + "/" + betaT);
     }
     
-    //find angle deltas from current stepped position to target exact
-    float deltaAT = alphT-appAlph;
-    float deltaBT = betaT-appBeta;
+    //find angle deltas from current position to target exact
+    float deltaAT = alphT-alph;  //was appAlph and appBeta
+    float deltaBT = betaT-beta;
     if(verbose) println("angle deltas: " + deltaAT + "/" + deltaBT);
     
-    //find step deltas
+    //find step deltas (change from current position in steps)
     int deltaStepAT = int(deltaAT/anglePerStep);
     int deltaStepBT = int(deltaBT/anglePerStep);
     if(verbose) println("step deltas: " + (rev1*deltaStepAT) + "/" + (rev2*deltaStepBT));
@@ -369,7 +271,8 @@ class Plotter {
       println(outConsole);
       myPort.write(outConsole);
     }
-   
+    
+    //find actual angle changes from move (using integer steps above)
     float delAlphStep = (deltaStepAT*anglePerStep);
     float delBetaStep = (deltaStepBT*anglePerStep);
     if(verbose) {
@@ -377,6 +280,7 @@ class Plotter {
       println("beta angle step from change:  " + delBetaStep);
     }
     
+    //calculate the approximate position that we got to instead of the target
     appAlph = alph + delAlphStep;
     appBeta = beta + delBetaStep;
     if(verbose) {
@@ -386,14 +290,12 @@ class Plotter {
       println("reset current:  alph/beta:  " +alph+"/"+beta);
       println("               alphT/betaA: " +alphT+"/"+betaT);
     }
-    //was this causing the loss of accuracy?
-//    alph = alphT;
-//    beta = betaT;
+    //set current position to the angles the arms are at (approximated by steps)
     alph = appAlph;
     beta = appBeta;
     if(verbose) println("check:          alph/beta:  " +alph+"/"+beta);
     
-    //back calculate current x and y from approximate angles
+    //back calculate current x and y from actual angles
     float[] currentXYs = xy(alph,beta);
     xCurrent = currentXYs[0];
     yCurrent = currentXYs[1];
