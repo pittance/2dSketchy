@@ -1,30 +1,37 @@
 import processing.serial.*;
 import geomerative.*;
 
-//Use Procxessing 2.1.2(32bit)
-//connect lh motor to motor 1
-//connect rh motor to motor 2
-//servo goes on B1, brown to outside
+//Use Processing 2.1.2(32bit); won't work on later versions due to geomerative library
+//CONNECTIONS on EiBotBoard:
+//  connect lh motor to motor 1
+//  connect rh motor to motor 2
+//  servo goes on B1, brown to outside
 
+//create SVGreader object, will create Plotter class
 SVGReader reader;
-String svg="";
+String svg="";            //storing svg file path
 boolean readerOK = false;
 
+//target drawing size
 int a3width = 420;
 int a3height  = 297;
 
+//screen dimensions
 int screenWide = 760;
-//int screenPad = 50;
-//int drawWide = screenWide - (2*screenPad);
-
-//int drawHigh = int(float(drawWide)*(float(A3height)/float(A3width)));
 int screenHigh = 574;
 
 boolean screenOnly = true;
 boolean drawing = false;
 
+//serial communications
 String outConsole;
 Serial myPort;  // Create object from Serial class
+
+//used to set if a full draw to screen is to be done
+//for some large drawings full drawings will take a
+//lot of time so we only draw everything once at the
+//start, when we're drawing we over-draw with green
+boolean fullDraw = true;  //true on first draw
 
 void setup() {
   size(screenWide,screenHigh);
@@ -33,7 +40,6 @@ void setup() {
   
   //list ports
   println(Serial.list());
-  // variables for serial connection to EiBotBoard
   
   // setup serial port
   try {
@@ -45,31 +51,32 @@ void setup() {
   } catch (ArrayIndexOutOfBoundsException e) {
     //no serial device found
     println("didn't find eggbot");
-//    exit();
-    //writeToConsole = true;
   }
     
   while(!readerOK) {
     if(!svg.equals("")) {
+      println("launching SVGReader constructor");
       reader = new SVGReader(this, svg, a3width, a3height);
       readerOK = true;
       //parse the file, store the shapes in a linear array that can be plotted
+      println("launching reader.parse()");
       reader.parse();
     }
   }
   
-  //test movement code
-  
 }
 
 void draw() {
-//  rect(screenPad,screenPad,drawWide,drawHigh);
-  background(226);
-  pushMatrix();
-    translate(0,0);  //remove these, scaling & translation in the draw method
-    scale(1);
-    reader.plotSVG();
-  popMatrix();
+
+  if (fullDraw) {
+    background(226);
+    pushMatrix();
+      translate(0,0);  //remove these, scaling & translation in the draw method
+      scale(1);
+      reader.plotSVG();  //this will draw arm reach circles and the drawing
+    popMatrix();
+  }
+  fullDraw = false;
   
   if (drawing) {
     reader.plotLinNext();
@@ -91,16 +98,15 @@ void keyPressed() {
   if (key == 'x') reader.plot.shutDown();
   if (key == 'a') reader.plot.penUp();
   if (key == 'z') reader.plot.penDown();
-//  if (key == 'p') reader.plot();
-//  //if (key == 'l') reader.plotLin();
-//  if (key == 't') reader.plot.travTo(380,500);
-//  if (key == 'g') reader.plot.travTo(380,575);
-//  
-//  //test rectangle
-//  if (key == 'y') reader.plot.travTo(330,475);
-//  if (key == 'u') reader.plot.travTo(430,475);
-//  if (key == 'j') reader.plot.travTo(430,525);
-//  if (key == 'h') reader.plot.travTo(330,525);
+
+  //move to precise home position
+  if (key == 'h') reader.plot.travTo(100,424,reader.plot.maxStepsPerSecond);
+  
+  //nudge by steps to correct home position
+  if (key == 't') reader.plot.nudgeA(5);
+  if (key == 'y') reader.plot.nudgeA(-5);
+  if (key == 'i') reader.plot.nudgeB(5);
+  if (key == 'o') reader.plot.nudgeB(-5);
   
   if (key == 's') {
     println("writing to eggbot now");

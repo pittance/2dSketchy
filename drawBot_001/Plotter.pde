@@ -13,11 +13,12 @@ class Plotter {
   float xlength, ylength, hyp;
   float cosC, sinA;
   
+  //page positions and dimensions
   float poffx, poffy, pwide, phigh;
   
   //current positions
-  float alph;             //exact angle of alpha
-  float beta;             //exact angle of beta
+  float alph;             //exact current angle of alpha
+  float beta;             //exact current angle of beta
   float appAlph;          //approximate (stepped) alpha
   float appBeta;          //approximate (stepped) beta
   //target positions
@@ -25,15 +26,13 @@ class Plotter {
   float betaT;
   
   float anglePerStep;     //degrees per step, set in constructor
-  float gearRatio = 4.5;//90/20;//4.4444444;
+  float gearRatio = 4.5;  
   float stepsPerRev = 200;
   float microStep = 16;
   
+  //used for reversing directions of motors
   int rev1 = -1;  
   int rev2 = 1;   
-  
-  int aSteps=0;           //step counter
-  int bSteps=0;           //step counter
   
   float xHome,yHome;      //home point coordinates
   float xCurrent,yCurrent;
@@ -45,13 +44,14 @@ class Plotter {
   String outConsole;
   
   //speed settings
-  int maxStepsPerSecond = 1200;
-  int stepsPerSecond = 400;
-  float maxDrawDist = 20;
+  int maxStepsPerSecond = 1500;  //traverse speed, used everywhere
+  int stepsPerSecondHi = 400;    //used at the top of the page
+  int stepsPerSecondLo = 80;     //used at the bottom of the page
+  float maxDrawDist = 2;
   
-//    Implement speed control by rotational speed at shoulder, not at pen
-//    (max stepper speed is the only thing we care about and pen speed
-//    is only tangentially related to this) so we check for each motor
+//    Speed control by rotational speed at shoulder, not at pen.
+//    Max stepper speed is the only thing we care about and pen speed
+//    is only tangentially related to this so we check for each motor
 //    move what is the limiting stepper (normally the one moving farthest)
 //    and move that at the fastest speed we define and then the other will
 //    move slower. This should mean that the plotter always moves as fast
@@ -71,31 +71,28 @@ class Plotter {
     println("set at " + anglePerStep + " degrees per step");
     
     //initialisation of plotter - (0,0) is top left of board
-    offx = 282;        //offset of LHS in x
-    offy = 32;         //offset of LHS in y
+    offx = 282;        //offset of LHS pulley in x
+    offy = 32;         //offset of LHS pulley in y
     a1 = 223;          //arm length - upper
-    a2 = 411.5;          //arm length - lower
+    a2 = 411.5;        //arm length - lower
     a3 = 47;           //arm length - pen extension
-    aeff = sqrt(sq(a2)+sq(a3));      //effective lower arm length incl extension
-    d = 199;           //separation of shoulders
+    aeff = sqrt(sq(a2)+sq(a3));      //effective lower right hand arm length incl pen extension
+    d = 198;           //separation of shoulders
     
     //initialisation of page - (0,0) is top left of board
-    poffx = 142;//172.5;
-    poffy = 267;//250;
+    poffx = 142;
+    poffy = 267;
     pwide = 420;
     phigh = 297;
     
-    //TEMPORARY - TO BE REPLACED WITH HOMING
+    //TEMPORARY - TO BE REPLACED WITH HARDWARE HOMING
     //set home position
     xHome = 382;
     yHome = 575;
     
     xCurrent = xHome;
     yCurrent = yHome;
-    
-    
-   
-    
+
 //      
 //        alpha and beta are the angles of the arms:
 //              0deg                0deg
@@ -110,11 +107,13 @@ class Plotter {
 //      
 //      
 //        coordinate system:
-//              <offx><---d---->
-//              ^     o        o
-//            offy
-//              x--------------------|
-//              |                    |
+//      
+//     X<    offx   ><---d---->    ^
+//     ^                          offy
+//   poffy           o        o    v
+//            
+//     v        x--------------------|
+//     < poffx >|                    |
 //              |         A3         |
 //              |                    |
 //              |                    |
@@ -133,18 +132,15 @@ class Plotter {
   
   void initialise() {
     float[] temp = alphabeta(xHome,yHome);
-//    float[] temp = alphabeta2(xHome,yHome);
     alph = temp[0];
     beta = temp[1];
-//    alph = 148.147;
-//    beta = 137.178;
+
+    println("Home coords: " + xHome+"/"+yHome);
     println("Home angles: " + alph + "/" + beta);
     
     //assume start position is a whole step + exact
     appAlph = alph;
     appBeta = beta;
-    aSteps = 0;
-    bSteps = 0;
   }
   
   float[] alphabeta(float x, float y) {
@@ -194,10 +190,24 @@ class Plotter {
   }
   
 
-
   float[] xy(float alphaAng, float betaAng) {
     //forward kinematic calculation - calculate x,y for input alpha and beta
     //predicts x and y from alpha and beta (check of IK calc)
+    //
+    //            O <-d-> O
+    //
+    //        ea    angh
+    //          ange       eb
+    //
+    //
+    //
+    //             w
+    //           p
+    //
+    //ange is the angle w-ea-eb
+    //angh is the angle eb-ea-(horz)
+    //angw is the angle p-ea-w
+    
     float xa,ya,xb,yb;  //positions of the elbows
     xa = offx-a1*cos(radians(alphaAng-90));
     ya = offy+a1*sin(radians(alphaAng-90));
@@ -206,36 +216,61 @@ class Plotter {
     float sep = dist(xa,ya,xb,yb);
     float ange = acos((sep/2)/a2);
     float angh = atan2((yb-ya),(xb-xa));
-    float newX = xb-(aeff*cos(ange-angh));
-    float newY = yb+(aeff*sin(ange-angh));
+    float angw = atan(a3/a2);
+    float angp = angh+ange+angw;
+    
+    float newX = xa+aeff*cos(angp);
+    float newY = ya+aeff*sin(angp);
+    
     float[] out =  {newX,newY};
     return out;
   }
-
+  
+  
+  //draw calculation, used when precise line paths are required
   void drawTo(float x, float y) {
+    //this kind of machine will not draw straight lines from point to point naturally
+    //here we interpolate intermediate points which are in the straight line to ensure
+    //that this line bending doesn't happen when drawing.
+    
+    //calls traverse move code to move, at lower speed
+    
     float drawDist = dist(xCurrent,yCurrent,x,y);
+    
     if (drawDist>maxDrawDist) {
-      //split line
+      //split line when over threshold distance
       //determine intermediate points
-      int segments = int(drawDist/maxDrawDist);
+      int segments = int(drawDist/maxDrawDist)+1;
+      
       float[] xinter = new float[segments];
       float[] yinter = new float[segments];
-      for (int i=0;i<segments-1;i++) {
-        xinter[i] = map(i,0,segments-1,xCurrent,x);
-        yinter[i] = map(i,0,segments-1,yCurrent,y);
+      
+      for (int i=1;i<segments;i++) {
+        xinter[i-1] = map(i,0,segments,xCurrent,x);
+        yinter[i-1] = map(i,0,segments,yCurrent,y);
       }
+  
       xinter[segments-1] = x;
       yinter[segments-1] = y;
+  
       //draw intermediates and final
       for (int i=0;i<segments;i++) {
-        travTo(xinter[i],yinter[i],stepsPerSecond);
+        travTo(xinter[i],yinter[i],stepsPerSecond(xinter[i],yinter[i]));
       }
+      
     } else {
       //draw line in one segment
-      travTo(x,y,stepsPerSecond);
+      travTo(x,y,stepsPerSecond(x,y));
     }
   }
   
+  //we need to slow the speed when the pen is low down the page because it gets wobbly
+  int stepsPerSecond(float x, float y) {
+    return int(map(y,265,575,stepsPerSecondHi,stepsPerSecondLo));
+  }
+  
+  //traverse calculation, used when imprecise lines are required
+  //called by draw above, using small line lengths for accuracy
   void travTo(float x, float y, int speed) {
     //traverse move (faster, no intermediate points)
     //move - new exact target values
@@ -268,7 +303,6 @@ class Plotter {
     if (!((deltaStepAT==0) && (deltaStepBT==0))) {
       //don't write zero length moves to serial
       String outConsole = ("SM," + timer + "," + (rev1*deltaStepAT) + "," + (rev2*deltaStepBT) + "\r");
-      println(outConsole);
       myPort.write(outConsole);
     }
     
@@ -299,6 +333,17 @@ class Plotter {
     float[] currentXYs = xy(alph,beta);
     xCurrent = currentXYs[0];
     yCurrent = currentXYs[1];
+    
+  }
+  
+  void nudgeA(int st) {
+    String outConsole = ("SM," + 5 + "," + st + "," + "0" + "\r");
+    myPort.write(outConsole);
+  }
+  
+  void nudgeB(int st) {
+    String outConsole = ("SM," + 5 + "," + "0" + "," + st + "\r");
+    myPort.write(outConsole);
   }
   
   void penDown() {

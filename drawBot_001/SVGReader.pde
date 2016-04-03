@@ -1,10 +1,9 @@
 class SVGReader {
   //shapes and points for the SVG storage
-  RShape rs;
+  RShape rs;        //the whole shape read from SVG
+  RShape[] lin;     //linear array of shapes read recursively from the full shape
   
-  RShape[] lin;
-  
-  PApplet parent;
+  PApplet parent;   //for reference to the parent class because Processing
   
   float targetWidth = 420;
   float targetHeight = 297;
@@ -18,8 +17,10 @@ class SVGReader {
   float tscaleY = 1.00;
   float tshiftY = 0;
   
+  //class for low-level plotter settings and routines
   Plotter plot;
   
+  //plotter counter, used to step through the linear plot array
   int plotStep = 0;
   boolean ended = false;
   
@@ -28,9 +29,10 @@ class SVGReader {
     //run setups for geomerative library
     RG.init(parent);
     RG.setPolygonizer(RG.ADAPTATIVE); 
-    RG.setPolygonizerAngle(0.05);
+    RG.setPolygonizerAngle(radians(2));
     
     //load SVG into shape
+    println("SVGReader: loading shape");
     rs = RG.loadShape(svgName);
     println();
     println("STARTING SVGReader CLASS");
@@ -63,26 +65,15 @@ class SVGReader {
     println("parsing SVG...");
     parseSVG(rs);
     println("lin contains: " + lin.length);
-    printLin();
-  }
-  
-  private void printLin() {
-    int numInLin = lin.length;
-    for (int i=0;i<numInLin;i++) {
-      RPoint[] pts = lin[i].getPoints();
-      for(int j=0; j<pts.length; j++) {
-        //loop through points
-//        println(i+ ": "+scaler*pts[j].x+","+scaler*pts[j].y);
-      }
-    }
   }
   
   private void parseSVG(RShape shp) {
     //recursively traverse through the children of the shape
+    //store the shapes in the linear array of shapes, lin
     
     //find number of children
     int childs = shp.children.length; 
-   println("children: " + childs); 
+    println("children: " + childs); 
     
     //loop through children
     for (int i=0;i<childs;i++) {
@@ -102,48 +93,12 @@ class SVGReader {
     }
   }
   
-  void plotScreen() {
-    //initialise array of shapes
-    lin = new RShape[0];
-    drawAllToScreen(rs,true);
-  }
-  
-  private void drawAllToScreen(RShape shp, boolean drawbotPlot) {
-    //recursively traverse through the children of the shape
-    
-    //find number of children
-    int childs = shp.children.length;  
-    
-    //loop through children
-    for (int i=0;i<childs;i++) {
-      if (shp.children[i].children == null) {
-        //child has no children, found a shape, plot it
-        RPoint[] pts = shp.children[i].getPoints();
-        if(pts != null) {
-          //add a child to lin
-          lin = (RShape[])expand(lin,lin.length+1);
-          lin[lin.length-1] = shp.children[i];
-          //start to draw on screen
-          stroke(0,200,0);
-          noFill();
-          beginShape();
-          for(int j=0; j<pts.length-1; j++) {
-            //loop through points
-            vertex(pts[j].x, pts[j].y);
-          }
-          vertex(pts[pts.length-1].x, pts[pts.length-1].y);
-          endShape(); 
-        }
-      } else {
-        //child has children, call plotCurves again on it
-        drawAllToScreen(shp.children[i],true);
-      }
-    }
-  } 
   
   void plotSVG() {
-    //limit circles for drawing
+    //draws the full drawing and the reach circles to the screen
+    //called only once because this can be very slow
     
+    //limit circles for drawing
     fill(50,50);
     noStroke();
     ellipse(plot.offx,plot.offy,2*(plot.a1+plot.a2),2*(plot.a1+plot.a2));
@@ -152,7 +107,13 @@ class SVGReader {
     ellipse(plot.offx,plot.offy,2*(plot.a2-plot.a1),2*(plot.a2-plot.a1));
     ellipse(plot.offx+plot.d,plot.offy,2*(plot.a2-plot.a1),2*(plot.a2-plot.a1));
     
+    //paper
+    fill(255,50);
+    rect(plot.poffx,plot.poffy,plot.pwide,plot.phigh);
+    
+    //draw all lines in black
     int numInLin = lin.length;
+    
     for (int i=0;i<numInLin;i++) {
       RPoint[] pts = lin[i].getPoints();
       stroke(0);
@@ -166,54 +127,55 @@ class SVGReader {
     }
   }
   
-  void drawSVG() {
-    int numInLin = lin.length;
-    for (int i=0;i<numInLin;i++) {
-      RPoint[] pts = lin[i].getPoints();
-      if (i==0) {
-        //first shape, traverse out to first point
-        //pen up
-        plot.travTo(xformX(pts[0].x), xformY(pts[0].y),plot.maxStepsPerSecond);
-      }
-      //pen down
-      plot.penDown();
-      for(int j=0; j<pts.length; j++) {
-        //loop through points
-        plot.drawTo(xformX(pts[j].x), xformY(pts[j].y));
-      }
-      //pen up
-      plot.penUp();
-    }
-  }
-  
   private void drawSVGstep(int index) {
-    RPoint[] pts = lin[index].getPoints();
+    //called each time the screen is re-drawn when drawing
+    //writes shape data to plotter and then draws the
+    //shape over the top of the full drawing with green
+    //to show progress/position
+    
+    //this only draws one element of lin, based on the index argument
+    
+    RPoint[] pts = lin[index].getPoints();  //array of points, pulled from each lin
+    
     if(pts != null){
-      //traverse to first point
+      //sometimes we get null shapes, ignore these   
+      
+      //traverse to first point of this shape
       plot.penUp();
       plot.travTo(xformX(pts[0].x),xformY(pts[0].y),plot.maxStepsPerSecond);
-//      println("traverse move - x: " + xformX(pts[0].x) + " y: " + xformY(pts[0].y));
       plot.penDown();
-
+      
+      //draw the shape
       for(int j=1; j<pts.length; j++) {
         //loop through points
-//        plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));
-        plot.travTo(xformX(pts[j].x),xformY(pts[j].y),plot.maxStepsPerSecond);
-//        println("draw move - x: " + xformX(pts[j].x) + " y: " + xformY(pts[j].y));
+        plot.drawTo(xformX(pts[j].x),xformY(pts[j].y));        
       }
+      
+      //now draw this single line in green to the screen
+      stroke(39,152,29);
+      noFill();
+      beginShape();
+      for(int j=0; j<pts.length; j++) {
+        //loop through points
+        vertex(xformX(pts[j].x), xformY(pts[j].y));
+      }
+      endShape(); 
     }
   }
   
-  float xformX(float xin) {
+  //transformation functions for x and y corrdinates
+  private float xformX(float xin) {
     return ((xin*scaler)+plot.poffx);
   }
   
-  float xformY(float yin) {
+  private float xformY(float yin) {
     return ((yin*scaler)+plot.poffy);
   }
   
+  //called repeatedly by the draw() routine, draws successive shapes from lin
   void plotLinNext() {
     if (plotStep == 0) {
+      //first step
       println("start writing to eggbot");
       plot.penUp();
     }
