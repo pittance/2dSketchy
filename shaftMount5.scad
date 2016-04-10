@@ -22,8 +22,13 @@ tiny=0.001;
 
 servoRot = 0;
 
+//ELBOWELBOWELBOW
 
+//PRINT
 //elbow();
+//translate([0,25,0])elbow();
+//translate([0,25*2,0])elbow();
+//translate([0,25*3,0])elbow();
 
 //servo spline is 4.66mm diam, 3mm high
 //2.2mm screw diam (to threads), 2.5mm hole & 3.42mm long (threads)
@@ -40,11 +45,11 @@ servoRot = 0;
 //translate([-15/2,12.5,12.5])penLiftUpper();
 
 //PRINT
-//wrist2(0);   
+wrist2(0);   
 translate([0,-40,0])wrist1(0);
-//translate([50,30,0])penHolder();
-//translate([-20,20,0])penLiftLower();
-//rotate([0,90,0])translate([-13.6,-20,-30])penLiftUpper();
+translate([50,30,0])penHolder();
+translate([-20,20,0])penLiftLower();
+rotate([0,90,0])translate([-13.6,-20,-30])penLiftUpper();
 
 
 module wrist1(clampAngle) {

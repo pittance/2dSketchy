@@ -90,8 +90,17 @@ beltBlockThick = retainer_ht;
 beltBlockShift = pulley_t_ht+pulley_b_ht+retainer_ht;
 echo(beltBlockShift);
 
+//DRAWBOTPARTSDRAWBOTPARTSDRAWBOTPARTS
 //opposite hands rh:[1,0,0] and lh[0,0,0]
 mirror([0,0,0]){
+    drawBotPulley();
+}
+
+translate([80,0,0])mirror([1,0,0]){
+    drawBotPulley();
+}
+
+module drawBotPulley() {
     difference() {
         rotate([0,180,0])union() {
             if ( profile == 1 ) { pulley ( "MXL" , MXL_pulley_dia , 0.508 , 1.321 ); }
